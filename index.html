@@ -1,12 +1,15 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>🎁 디자인 컨셉 기획 생성기</title>
-<meta name="description" content="산업군/목적/용도/타겟/톤/제약/브랜드/이미지/에너지 선택 → 무드·컬러·서체·레이아웃 자동 추천">
+<meta name="description" content="산업군/목적/용도/타겟/톤/제약/브랜드/이미지/에너지 선택 → 무드/컬러/서체/레이아웃/페르소나 자동 추천">
 <style>
-  :root{--bg:#fff;--fg:#0b0b0c;--muted:#6b7280;--line:#e5e7eb;--card:#f8fafc;--ok:#16a34a}
+  :root{
+    --bg:#fff; --fg:#0b0b0c; --muted:#6b7280; --line:#e5e7eb; --card:#f8fafc;
+    --accent:#2563eb; --ok:#16a34a;
+  }
   *{box-sizing:border-box; print-color-adjust:exact; -webkit-print-color-adjust:exact}
   html,body{margin:0}
   body{font-family:ui-sans-serif,system-ui,Apple SD Gothic Neo,Pretendard,Roboto,Helvetica,Arial;background:var(--bg);color:var(--fg)}
@@ -16,7 +19,7 @@
   .badge{font-size:12px;color:#334155;border:1px solid var(--line);background:#eef2ff;padding:4px 10px;border-radius:999px}
   .grid{display:grid;gap:14px}
   .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
-  h1,h2,h3{margin:0 0 8px}
+  h1,h2,h3{margin:0 0 8px 0}
   p{margin:6px 0}
   select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -26,48 +29,72 @@
   .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
   .card>:last-child{margin-bottom:0}
   .col3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  @media (max-width:980px){.col3{grid-template-columns:1fr}}
+  @media (max-width: 980px){ .col3{grid-template-columns:1fr} }
+
   .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#334155;font-size:12px}
   .swatch{display:flex;gap:10px;flex-wrap:wrap}
   .swatch .c{width:92px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
   .swatch .c div{height:50px}
   .swatch .c span{display:block;padding:6px 6px 8px;font-size:11px;text-align:center;color:#334155}
+
   .resultGrid{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
-  @media (max-width:980px){.resultGrid{grid-template-columns:1fr}}
+  @media (max-width: 980px){ .resultGrid{grid-template-columns:1fr} }
   .meter{height:12px;background:#f1f5f9;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
   .meter>i{display:block;height:100%;background:#22c55e}
+
   .bars{display:grid;gap:8px}
   .barRow{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center}
   .bar{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden}
   .bar>i{display:block;height:100%;background:linear-gradient(90deg,#60a5fa,#22d3ee)}
-  .moodBox{margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:12px;background:linear-gradient(135deg,#eff6ff 0%,#fff 45%,#fdf2f8 100%);box-shadow:0 6px 18px rgba(37,99,235,.08)}
+
+  /* 요약 카드 내부 무드 강조 박스 */
+  .moodBox{
+    margin-top:10px; border:1px solid var(--line); border-radius:14px; padding:12px;
+    background:linear-gradient(135deg,#eff6ff 0%, #fff 45%, #fdf2f8 100%);
+    box-shadow:0 6px 18px rgba(37,99,235,.08);
+  }
   .moodTitle{font-size:20px;font-weight:900;margin-bottom:6px}
   .moodTags{display:flex;gap:8px;flex-wrap:wrap}
-  .compact ul{font-size:13px;line-height:1.6;margin:6px 0 0 18px}
-  .compact p,.compact .small{font-size:12px}
-  /* 레이아웃 비율 박스 */
-  .ratioLine{display:flex;gap:10px;align-items:flex-end;flex-wrap:nowrap;overflow-x:auto}
-  .ratio{flex:0 0 auto;width:110px;height:72px;border:1px solid var(--line);border-radius:10px;position:relative;background:#fff;opacity:.35;transition:opacity .2s, border-color .2s}
-  .ratio.active{opacity:1;border-color:#60a5fa}
-  .ratio .inner{position:absolute;border:2px dotted #93c5fd;border-radius:6px}
-  .ratio label{position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:11px;color:#334155}
+
+  /* 컴팩트 텍스트 */
+  .compact ul{font-size:13px; line-height:1.6; margin:6px 0 0 18px}
+  .compact p, .compact .small{font-size:12px}
+
+  /* 레이아웃 비율 미리보기(정확 비율 + 추천 표기) */
+  .previewLine{display:flex;gap:12px;align-items:center;flex-wrap:nowrap;overflow-x:auto}
+  .ratio{
+    flex:0 0 auto; width:108px; height:72px; border:1px solid var(--line); border-radius:12px;
+    position:relative; background:#fff; opacity:.35;
+  }
+  .ratio.active{opacity:1; border:2px solid #60a5fa}
+  .ratio .inner{
+    position:absolute; display:block; background:rgba(99,102,241,.08);
+    border:2px dotted #93c5fd; border-radius:8px;
+  }
+  .ratio label{position:absolute; bottom:4px; left:0; right:0; text-align:center; font-size:11px; color:#334155}
+
   /* 모달 */
-  .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.35);z-index:50}
-  .modal .box{background:#fff;border-radius:14px;padding:16px 18px;width:min(360px,92vw);box-shadow:0 10px 30px rgba(0,0,0,.2)}
-  @media print{header{position:static;background:#fff}.btn{display:none}body{background:#fff}}
+  .modal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.35); z-index:50}
+  .modal .box{background:#fff; border-radius:14px; padding:16px 18px; width:min(360px,92vw); box-shadow:0 10px 30px rgba(0,0,0,.2)}
+
+  @media print{
+    header{position:static; background:#fff}
+    .btn{display:none}
+    body{background:#fff}
+  }
 </style>
 </head>
 <body>
 <header>
   <div class="wrap brand">
     <div style="font-size:22px">🎁 디자인 컨셉 기획 생성기</div>
-    <span class="badge">드롭다운 9문항 → 무드·컬러·서체·레이아웃 자동 추천</span>
+    <span class="badge">드롭다운 9문항 → 무드/컬러/서체/레이아웃/페르소나 자동 추천</span>
   </div>
 </header>
 
 <div class="wrap grid">
 
-  <!-- 질문 -->
+  <!-- STEP 1 -->
   <section id="screen-ask" class="panel grid">
     <div class="row" style="justify-content:space-between">
       <h2>1) 질문에 답해 주세요 (9문항)</h2>
@@ -76,75 +103,92 @@
 
     <div class="col3">
       <div class="card"><h3>① 산업군</h3>
-        <select id="q_industry"><option value="-">-</option>
+        <select id="q_industry">
+          <option value="-">-</option>
           <option value="tech">IT/테크</option><option value="fashion">패션/뷰티</option>
           <option value="food">푸드/레스토랑</option><option value="finance">금융/핀테크</option>
           <option value="culture">문화/전시</option><option value="edu">교육/공공</option>
           <option value="sports">스포츠/레저</option><option value="travel">여행/관광</option>
           <option value="auto">자동차/모빌리티</option><option value="game">게임/e스포츠</option>
-          <option value="estate">부동산/건설</option><option value="health">의료/헬스케어</option>
-          <option value="home">가전/리빙</option><option value="music">음악/엔터</option>
+          <option value="estate">부동산/건설</option><option value="health">의료/헬스케어/제약</option>
+          <option value="home">가전/가구/리빙</option><option value="music">음악/엔터</option>
           <option value="ngo">비영리/NGO</option>
-        </select><p class="small">무드·이미저리에 가중치 적용</p>
+        </select><p class="small">무드·타이포·이미저리에 가중치</p>
       </div>
 
       <div class="card"><h3>② 목적</h3>
-        <select id="q_goal"><option value="-">-</option>
-          <option value="conversion">전환/구매/가입</option><option value="awareness">브랜드 인지도</option>
-          <option value="education">안내/설명</option><option value="campaign">캠페인/이벤트</option>
-        </select><p class="small">CTA 강도·정보 위계 반영</p>
+        <select id="q_goal">
+          <option value="-">-</option>
+          <option value="conversion">전환/구매/가입</option>
+          <option value="awareness">브랜드 인지도</option>
+          <option value="education">안내/설명</option>
+          <option value="campaign">캠페인/이벤트</option>
+        </select><p class="small">정보 위계/강조 강도 반영</p>
       </div>
 
       <div class="card"><h3>③ 용도/매체</h3>
-        <select id="q_platform"><option value="-">-</option>
-          <option value="web">웹 랜딩/프로덕트</option><option value="app">모바일 앱</option>
-          <option value="sns">SNS/배너/카드뉴스</option><option value="poster">포스터/인쇄</option>
-        </select><p class="small">비율/세이프 존/텍스트 사이즈 반영</p>
+        <select id="q_platform">
+          <option value="-">-</option>
+          <option value="web">웹 랜딩/프로덕트</option>
+          <option value="app">모바일 앱</option>
+          <option value="sns">SNS/배너/카드뉴스</option>
+          <option value="poster">포스터/인쇄</option>
+        </select><p class="small">세이프 존/텍스트 크기 반영</p>
       </div>
 
       <div class="card"><h3>④ 타겟</h3>
-        <select id="q_audience"><option value="-">-</option>
+        <select id="q_audience">
+          <option value="-">-</option>
           <option value="gen">대중</option><option value="youth">10–20대</option>
           <option value="adult">30–40대</option><option value="pro">전문가/업계</option>
           <option value="premium">프리미엄</option>
-        </select><p class="small">가독성/대담함 가중치</p>
+        </select><p class="small">가독성/개성/대담함 가중치</p>
       </div>
 
       <div class="card"><h3>⑤ 톤앤매너</h3>
-        <select id="q_tone"><option value="-">-</option>
+        <select id="q_tone">
+          <option value="-">-</option>
           <option value="trust">신뢰·정제</option><option value="friendly">친근·부드러움</option>
           <option value="bold">대담·강렬</option><option value="warm">따뜻·휴먼</option>
-        </select><p class="small">타이포/컬러 대비 반영</p>
+        </select><p class="small">타이포/컬러 대비에 반영</p>
       </div>
 
       <div class="card"><h3>⑥ 제약 사항</h3>
-        <select id="q_ban"><option value="-">-</option>
+        <select id="q_ban">
+          <option value="-">-</option>
           <option value="none">없음</option>
-          <option value="brandOnly">브랜드 컬러만 사용</option>
-          <option value="lowContrastOK">낮은 대비 허용(부드러운 톤)</option>
-          <option value="imageLimited">이미지 사용 제한(텍스트 중심)</option>
-        </select><p class="small">팔레트/밀도/이미지 사용 제약</p>
+          <option value="noNeon">네온/강한 그라디언트 금지</option>
+          <option value="hiDensity">한 화면에 과밀 배치 금지</option>
+          <option value="brandStrict">브랜드 가이드 엄수(색/로고 변형 금지)</option>
+          <option value="noStocky">과도한 스톡사진 느낌 금지</option>
+        </select><p class="small">팔레트/이미지/텍스트 밀도 제약</p>
       </div>
 
       <div class="card"><h3>⑦ 브랜드 성격</h3>
-        <select id="q_brand"><option value="-">-</option>
+        <select id="q_brand">
+          <option value="-">-</option>
           <option value="innovative">혁신적</option><option value="reliable">신뢰/안정</option>
           <option value="friendly">친근/유머</option><option value="luxury">프리미엄/감성</option>
         </select><p class="small">무드·타이포 미세 조정</p>
       </div>
 
       <div class="card"><h3>⑧ 이미지 스타일</h3>
-        <select id="q_visual"><option value="-">-</option>
-          <option value="photo">사진 중심</option><option value="illustration">일러스트 중심</option>
-          <option value="iconic">아이콘/픽토</option><option value="mixed">혼합</option>
-        </select><p class="small">이미지/아이콘 방향 제안</p>
+        <select id="q_visual">
+          <option value="-">-</option>
+          <option value="photo">사진 중심</option>
+          <option value="illustration">일러스트 중심</option>
+          <option value="iconic">아이콘/픽토 스타일</option>
+          <option value="mixed">혼합</option>
+        </select><p class="small">이미지/아이콘 방향</p>
       </div>
 
       <div class="card"><h3>⑨ 에너지 레벨</h3>
-        <select id="q_energy"><option value="-">-</option>
-          <option value="calm">차분/정돈</option><option value="balanced">균형</option>
+        <select id="q_energy">
+          <option value="-">-</option>
+          <option value="calm">차분/정돈</option>
+          <option value="balanced">균형</option>
           <option value="dynamic">역동/활기</option>
-        </select><p class="small">대담함·색채 강도 조정</p>
+        </select><p class="small">대담함·색채 강도</p>
       </div>
     </div>
 
@@ -153,7 +197,7 @@
     </div>
   </section>
 
-  <!-- 결과 -->
+  <!-- STEP 2 -->
   <section id="screen-result" class="panel grid" style="display:none">
     <div class="row" style="justify-content:space-between">
       <h2>🎯 컨셉 보드</h2>
@@ -164,8 +208,9 @@
     </div>
 
     <div class="resultGrid">
+      <!-- 왼쪽 -->
       <div class="grid" style="gap:14px">
-        <div class="card">
+        <div class="card" id="summaryCard">
           <h3>📌 요약</h3>
           <div class="row" style="gap:8px;margin-top:4px">
             <span class="tag" id="tagIndustry">#산업</span>
@@ -177,10 +222,19 @@
           </div>
           <p class="small" id="summaryText" style="margin-top:8px"></p>
 
+          <!-- 무드(강조) -->
           <div class="moodBox">
             <div class="moodTitle" id="moodTitle">무드 자동 판정</div>
             <div class="moodTags" id="moodTags"></div>
           </div>
+        </div>
+
+        <!-- NEW: 핵심 페르소나 -->
+        <div class="card" id="personaCard">
+          <h3>🧑‍🎨 핵심 페르소나</h3>
+          <div class="row" id="personaHeader" style="gap:8px;margin-top:4px"></div>
+          <ul id="personaPoints" style="margin:8px 0 0 18px; line-height:1.65; font-size:13px"></ul>
+          <div class="small" id="personaImp" style="margin-top:8px"></div>
         </div>
 
         <div class="card">
@@ -191,14 +245,9 @@
             <div class="meter" style="flex:1 1 200px"><i id="meter" style="width:0%"></i></div>
           </div>
         </div>
-
-        <div class="card">
-          <h3>📐 구성 비율 추천</h3>
-          <div class="bars" id="compBars" style="margin-top:8px"></div>
-          <p class="small">* 이미지/텍스트/여백/CTA 비중으로 레이아웃 밀도를 조절하세요.</p>
-        </div>
       </div>
 
+      <!-- 오른쪽 -->
       <div class="grid" style="gap:14px">
         <div class="card compact">
           <h3>🔡 타이포그래피</h3>
@@ -207,10 +256,10 @@
         </div>
 
         <div class="card compact">
-          <h3>🔲 레이아웃 비율 추천</h3>
+          <h3>📐 레이아웃 비율 추천</h3>
           <ul id="gridList"></ul>
           <div class="small" style="margin-top:8px">비율 가이드</div>
-          <div class="ratioLine" id="ratioLine"></div>
+          <div class="previewLine" id="ratioLine"></div>
         </div>
 
         <div class="card">
@@ -227,328 +276,405 @@
 <!-- 모달 -->
 <div class="modal" id="modal">
   <div class="box">
-    <h3 style="margin:0 0 8px">체크 필요</h3>
-    <p style="margin:0 0 10px">모든 항목을 선택해 주세요.</p>
-    <div class="row" style="justify-content:flex-end"><button class="btn" onclick="closeModal()">확인</button></div>
+    <h3 style="margin:0 0 8px 0">체크 필요</h3>
+    <p style="margin:0 0 10px 0">모든 항목을 선택해 주세요.</p>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn" onclick="closeModal()">확인</button>
+    </div>
   </div>
 </div>
 
 <script>
-/* ===== 무드(기존+확장 17종) ===== */
-const MOODS = {
+/* ========================= 데이터: 무드 / 팔레트 ========================= */
+const MOOD_INFO = {
   modern:{label:'모더니즘 🧩', colors:['#111827','#2563eb','#e5e7eb','#0ea5e9','#f8fafc'], tags:['질서','보편성','절제']},
   minimal:{label:'미니멀 🌫️', colors:['#0f172a','#94a3b8','#f1f5f9','#334155','#e2e8f0'], tags:['여백','정돈','차분']},
   retro:{label:'레트로 📼', colors:['#5b3a29','#eab308','#ef4444','#fde68a','#f3e8ff'], tags:['복고','질감','노스탤지아']},
-  brutal:{label:'브루탈리즘 🧨', colors:['#000','#22c55e','#facc15','#e11d48','#fff'], tags:['대담','날것','원색']},
+  brutal:{label:'브루탈리즘 🧨', colors:['#000000','#22c55e','#facc15','#e11d48','#ffffff'], tags:['대담','날것','원색']},
   pop:{label:'팝/캐주얼 🎉', colors:['#111827','#f43f5e','#fb923c','#22d3ee','#fef3c7'], tags:['발랄','친근','비비드']},
-  tech:{label:'테크 💾', colors:['#0b0b0c','#22d3ee','#60a5fa','#a78bfa','#111827'], tags:['네온','클린','디지털']},
+  tech:{label:'테크/사이버 💾', colors:['#0b0b0c','#22d3ee','#60a5fa','#a78bfa','#111827'], tags:['네온','클린','디지털']},
   warm:{label:'웜/휴먼 ☕', colors:['#1f2937','#d97706','#b45309','#fde68a','#fdf2f8'], tags:['따뜻','휴먼','신뢰']},
-  natural:{label:'내추럴 🌿', colors:['#1b4332','#2d6a4f','#95d5b2','#e9f5ec','#fefae0'], tags:['오가닉','차분','내추럴']},
-  luxury:{label:'럭셔리 💎', colors:['#0f172a','#111111','#b98b2d','#e5e7eb','#fff'], tags:['프리미엄','고급','절제']},
-  y2k:{label:'Y2K ✨', colors:['#0ea5e9','#a78bfa','#22d3ee','#f472b6','#000'], tags:['네온','그라디언트','사이버']},
-  cyberpunk:{label:'사이버펑크 ⚡', colors:['#0b0b0c','#14f195','#ff3d81','#3b82f6','#111827'], tags:['네온','대비','미래']},
-  sporty:{label:'스포티 🏃‍♂️', colors:['#111827','#ef4444','#22c55e','#60a5fa','#fff'], tags:['다이내믹','선명','팀컬러']},
-  editorial:{label:'에디토리얼 📰', colors:['#0f172a','#111827','#e5e7eb','#f8fafc','#dc2626'], tags:['타이포','격자','질서']},
-  monochrome:{label:'모노크롬 ⚫⚪', colors:['#0b0b0c','#4b5563','#9ca3af','#e5e7eb','#ffffff'], tags:['절제','대비','클린']},
-  pastel:{label:'파스텔 🍬', colors:['#1f2937','#93c5fd','#f9a8d4','#fde68a','#e9d5ff'], tags:['부드러움','친근','밝음']},
-  futuristic:{label:'퓨처리즘 🚀', colors:['#0b0b0c','#60a5fa','#22d3ee','#a78bfa','#e2e8f0'], tags:['미래','메탈','글로우']},
-  craft:{label:'크래프트 🧵', colors:['#1f2937','#92400e','#f59e0b','#fef3c7','#fafaf9'], tags:['수공예','텍스처','따뜻']
-  }
+  // 추가 확장 무드 (10+)
+  organic:{label:'오가닉 🌿', colors:['#0b3d2e','#34d399','#b5e0d3','#fefce8','#f1f5f9'], tags:['자연','소프트','친환경']},
+  luxury:{label:'럭셔리 💎', colors:['#0b0b0c','#a78bfa','#d4af37','#f1f5f9','#1f2937'], tags:['프리미엄','세련','절제된 광택']},
+  y2k:{label:'Y2K ✨', colors:['#0b0b0c','#a78bfa','#22d3ee','#f472b6','#ffffff'], tags:['네온','글로시','미래지향']},
+  classic:{label:'네오클래식 🏛️', colors:['#1f2937','#9ca3af','#f9fafb','#a855f7','#111827'], tags:['정제','균형','전통']},
+  sporty:{label:'스포티 🏃', colors:['#0b0b0c','#22c55e','#ef4444','#60a5fa','#f1f5f9'], tags:['에너지','선명','실용']},
+  cozy:{label:'코지 ☕️', colors:['#1f2937','#d97706','#a3a3a3','#fde68a','#fdf2f8'], tags:['따뜻','빈티지','부드러움']}
 };
 
-/* ===== 실무 레이아웃 가이드 ===== */
 const LAYOUT_GUIDE = {
   web:[
-    '첫 화면: 핵심 문구 5–8단어 + 주요 CTA 1개',
-    '텍스트 라인 길이 45–75자, 섹션 간 간격 48–72px',
+    '히어로 섹션: 핵심 문구 5–8단어 + 주요 CTA 1개',
+    '텍스트 라인 길이 45–75자 / 섹션 간 간격 48–72px',
     '리드 문단 16–18px, 카드형 리스트로 정보 덩어리화',
-    '전환 요소는 해당 섹션과 그룹화, 1차/2차 CTA 구분'
+    '폼/다운로드는 1차 CTA와 그룹화(시선 동선 정렬)'
   ],
   app:[
-    '컴포넌트 반복(카드/리스트/버튼), 터치 타겟 ≥44px',
-    '상단 탭 또는 하단 네비에 주요 흐름 배치',
-    '본문 15–17px, 인터랙션 상태(hover/tap) 명료화',
-    '모달/시트는 한정적 사용, 중첩 금지'
+    '컴포넌트 반복(카드/리스트/버튼)로 리듬 유지, 터치 타겟 최소 44px',
+    '상·하단 네비게이션 중심으로 우선 흐름 설계',
+    '본문 15–17px / 인터랙션 상태 명료화',
+    '모달/시트는 1회성 정보만 — 중첩 최소화'
   ],
   sns:[
-    '카드뉴스: 슬라이드당 20–40자, 10장 기준 1–2 핵심',
-    '텍스트:이미지 6:4~4:6, 첫 장은 키비주얼/타이틀',
+    '카드뉴스: 슬라이드 20–40자 / 10장 기준 1–2개 메시지',
+    '텍스트:이미지 6:4~4:6 / 첫 장은 썸네일(키비주얼)',
     '단일 템플릿(타이틀/바디/출처)로 일관성 유지',
-    '세이프 존 확보, 번호·진행바로 컨텍스트 제공'
+    '세이프 존(가장자리 60px) 확보 / 번호·진행바 제공'
   ],
   poster:[
-    '키 메시지 5–7단어, 보조 정보는 계층화(장소/일시/문의)',
-    'QR/URL 대비 확보, 가까이/멀리 두 시나리오 분리',
-    '인쇄시 최소 3mm 여분, 이미지 해상도 200–300ppi',
-    '강조색 1개, 보조색 1–2개로 질서를 유지'
+    '키 메시지 5–7단어 / 보조 정보 계층화(장소/일시/문의)',
+    'QR/URL 대비 확보(스캔 거리 고려) / 미세 여백으로 시선 유도',
+    '원거리·근거리 시나리오 분리(멀리선 제목, 가까이선 상세)',
+    '인쇄 여분 3mm / 이미지 해상도 200–300ppi'
   ]
 };
 
-/* ===== CTA/이미저리 간략 맵 ===== */
-const CTA_BY_GOAL = {
-  conversion:['지금 시작하기','무료 체험','다운로드'],
-  awareness:['더 알아보기','스토리 보기','철학 읽기'],
-  education:['가이드 보기','튜토리얼 보기','샘플 확인'],
-  campaign:['이벤트 참여','혜택 받기','쿠폰 받기']
-};
-const INDUSTRY_IMAGERY = {
-  tech:['대시보드 UI','네트워크 메타포','모듈형 카드','클린 아이콘'],
-  fashion:['룩북 크롭','질감 클로즈업','모노톤/하이컨트라스트','스타일링 샷'],
-  food:['식재료 클로즈업','따뜻한 조명','메뉴 카드','손글씨 악센트'],
-  finance:['신뢰 컬러','차분한 아이콘','데이터 시각화','케이스 스터디'],
-  culture:['포스터 타이포','텍스처 레이어','그리드 실험','전시 배너'],
-  edu:['학습 UI','도표/차트','친근 일러스트','명확한 안내'],
-  sports:['액션 샷','다이내믹 타이포','팀 컬러','스코어 보드'],
-  travel:['풍경/지도 메타포','따뜻한 색감','일러스트 스팟','사진+아이콘 혼합'],
-  auto:['동적 모션','메탈/광택 질감','테크 무드','실루엣 강조'],
-  game:['네온 포인트','콘셉트 아트','대담한 헤드라인','HUD 모티프'],
-  estate:['광각 사진','정갈한 선','신뢰감 색채','정보 위계'],
-  health:['청결 화이트','파스텔 포인트','인포그래픽','안정감 사진'],
-  home:['제품 질감','라이프스타일 샷','소프트 톤','심플 아이콘'],
-  music:['무대/조명','앨범 아트 무드','리듬 타이포','네온 포인트'],
-  ngo:['현장 사진','진정성 컬러','정보 투명성','일러스트 보조']
+/* ========================= 타이포 후보 (확장) ========================= */
+const TYPO_POOL = {
+  body: [
+    'Pretendard','Noto Sans KR','Inter','Roboto','Source Sans 3','Open Sans',
+    'IBM Plex Sans KR','Spoqa Han Sans Neo','Nanum Gothic','SUIT','Gmarket Sans',
+    'Lato','Harmonia Sans','Malgun Gothic','Apple SD Gothic Neo'
+  ],
+  head: [
+    'Montserrat','Poppins','Oswald','Bebas Neue','Noto Serif KR','DM Serif Display',
+    'Playfair Display','Raleway','Lora','Cormorant Garamond','Archivo Black',
+    'Futura PT','Cinzel','Cabinet Grotesk','Pretendard Black'
+  ]
 };
 
-/* ===== 타이포 후보(확장) ===== */
-const TYPE_FAMILIES = {
-  body:{
-    neutral:['Pretendard','Inter','Open Sans','Roboto','Noto Sans KR','IBM Plex Sans KR','Source Sans 3','Segoe UI','Work Sans','Manrope','Plus Jakarta Sans','SUIT'],
-    friendly:['Spoqa Han Sans Neo','Gmarket Sans','KoPub World Sans','NanumSquare','Product Sans 스타일','Rubik','Nunito'],
-    proSerif:['Noto Serif KR','Source Serif 4','Cormorant Garamond','Merriweather','Lora','Crimson Pro','DM Serif Text','EB Garamond'],
-    compact:['Inter Tight','Roboto Condensed','Noto Sans Condensed','Assistant','Archivo Narrow']
-  },
-  head:{
-    strongSans:['Montserrat','Poppins','Bebas Neue','Oswald','Barlow Condensed','Archivo Black','Anton','League Spartan','Impact 스타일','Saira Condensed','Futura PT 스타일'],
-    humanist:['Frutiger 스타일','Gill Sans 스타일','Optimo Basier','Avenir Next 스타일','Myriad 스타일','Work Sans Bold'],
-    rounded:['Pretendard Rounded','Nunito','Rubik Rounded','Noto Sans Rounded','Cafe24 Ohsquare','Tmoney Round'],
-    displaySerif:['Playfair Display','DM Serif Display','Cormorant','Vollkorn','Bodoni Moda','Canela 스타일','Recoleta 스타일'],
-    tech:['Orbitron','Eurostile 스타일','Exo 2','Rajdhani','Audiowide'],
-  }
-};
+/* ========================= 페르소나 생성 ========================= */
+function buildPersona({industry,audience,platform,tone,brand,goal,visual,energy,moodKey}){
+  // 이름/연령/직무 템플릿
+  const names = ['김하늘','박민수','이서윤','정우진','최다은','오지후','강수민','유민서','윤도현','한가은'];
+  const seed = Math.floor(Math.random()*names.length);
+  const name = names[seed];
 
-/* ===== 도우미 ===== */
+  const ageMap = {youth:'22–26', gen:'27–34', adult:'30–45', pro:'28–42', premium:'32–48'};
+  const roleMap = {
+    tech:'프로덕트 마케터', fashion:'브랜드 MD', food:'매장/프랜차이즈 마케터',
+    finance:'디지털 마케터', culture:'전시 기획자', edu:'교육 콘텐츠 기획자',
+    sports:'스폰서십 매니저', travel:'투어 기획자', auto:'모빌리티 PM',
+    game:'게임 커뮤니티 매니저', estate:'분양 마케터', health:'헬스케어 교육 매니저',
+    home:'리빙 MD', music:'레이블 프로모터', ngo:'캠페인 매니저'
+  };
+  const role = roleMap[industry] || '마케팅 실무자';
+  const age = ageMap[audience] || '28–38';
+
+  // 채널/행동
+  const channels = (platform==='sns')? ['인스타그램','틱톡','유튜브 쇼츠'] :
+                  (platform==='web'||platform==='app')? ['검색','유튜브','브런치'] : ['현수막','지역 커뮤니티','인스타그램'];
+
+  // 선호 스타일
+  const style = {
+    trust:'정제·균형·명료 카피', friendly:'밝고 친근한 시각 요소',
+    bold:'대조 강한 헤드라인·선명 팔레트', warm:'뉴트럴톤·사람/현장 중심'
+  }[tone];
+
+  // 목표/고민
+  const obj = {
+    conversion:'짧은 여정에서 전환율 극대화',
+    awareness:'브랜드 인지도와 일관된 톤 구축',
+    education:'핵심 정보의 빠른 이해',
+    campaign:'이벤트 참여/도달 극대화'
+  }[goal];
+
+  const pain = (platform==='sns')? '썸네일/첫 장에서 3초 내 관심 유도 실패'
+             :(platform==='web')? '첫 화면 히어로에서 가치 전달 지연'
+             :(platform==='poster')? '거리/근접 관람 시나리오 미분리'
+             :'탭/리스트 정보 구조 난해';
+
+  // 페르소나 카드 구성 텍스트
+  const headerTags = [
+    `👤 ${name} (${age})`, `직무: ${role}`, `채널: ${channels.join('·')}`
+  ];
+  const bullets = [
+    `디자인 선호: ${style}`,
+    `무드 적합: ${MOOD_INFO[moodKey].label.replace(/ .*/,'')}`,
+    `이미지 선호: ${(visual==='photo')?'현장/제품 사진':'일러스트/아이콘 위주'}`,
+    `에너지 레벨: ${energy==='dynamic'?'역동적':'차분/균형'}`
+  ];
+  const implication =
+    `디자인 임플리케이션 — 헤드라인은 ${tone==='bold'?'압축적·강조형':'명료·간결형'}으로,
+     비주얼은 ${visual==='photo'?'사진 중심(사실성 강화)':'아이콘/일러스트로 개념 명확화'},
+     레이아웃은 ${platform==='sns'?'시리즈 템플릿':'섹션 정보 구획'}을 유지하여
+     <b>${obj}</b>을(를) 달성하도록 설계합니다.`;
+
+  return {headerTags, bullets, implication};
+}
+
+/* ========================= 타이포 추천 ========================= */
+function typoRecommend(audience, tone){
+  // 가중치로 다양화
+  const pick = (arr, bias=0)=>arr[(Math.floor(Math.random()*arr.length)+bias)%arr.length];
+  let body = 'Pretendard', head = 'Montserrat';
+
+  if(audience==='premium'){ body = pick(['Noto Serif KR','Cormorant Garamond','Source Serif 4','Lora','DM Serif Text'],1);
+                            head = pick(['Playfair Display','DM Serif Display','Cinzel','Noto Serif KR','Cabinet Grotesk'],2); }
+  else if(audience==='pro' || tone==='trust'){ body = pick(['Inter','Source Sans 3','IBM Plex Sans KR','SUIT','Open Sans','Roboto'],1);
+                                               head = pick(['Poppins','Raleway','Pretendard Black','Archivo Black','Montserrat'],1); }
+  else if(tone==='friendly'){ body = pick(['Spoqa Han Sans Neo','Gmarket Sans','Nanum Gothic','SUIT','Lato'],1);
+                              head = pick(['Poppins','Rounded Mplus','Noto Sans KR Bold','Pretendard Black','Montserrat']); }
+  else if(tone==='bold'){ body = pick(['Inter','SUIT','Pretendard','Gmarket Sans','IBM Plex Sans KR'],2);
+                          head = pick(['Oswald','Bebas Neue','Pretendard Black','Archivo Black','Montserrat'],2); }
+  else if(tone==='warm'){ body = pick(['Noto Sans KR','Apple SD Gothic Neo','Nanum Gothic','Harmonia Sans'],1);
+                          head = pick(['Noto Serif KR','Playfair Display','Lora','DM Serif Display','Raleway']); }
+  else { body = pick(TYPO_POOL.body); head = pick(TYPO_POOL.head); }
+
+  const guide = '리딩 1.6–1.8 / 트래킹 0~+2 / 커닝은 제목 글자쌍 수동 보정';
+  return [body+' (가독성 16–18px)', head+' (강조/헤드라인)', guide];
+}
+
+/* ========================= 성향 그래프 ========================= */
+function drawBars(moodKey, tone){
+  const dims = [
+    {key:'aesth', label:'심미성'}, {key:'read', label:'가독성'},
+    {key:'bold', label:'대담함'}, {key:'access', label:'편의성'},
+    {key:'trend', label:'트렌드성'}
+  ];
+  const base = {
+    modern:{aesth:80, read:85, bold:55, access:80, trend:70},
+    minimal:{aesth:78, read:88, bold:40, access:85, trend:65},
+    retro:{aesth:75, read:72, bold:60, access:70, trend:60},
+    brutal:{aesth:68, read:60, bold:90, access:55, trend:75},
+    pop:{aesth:72, read:70, bold:78, access:65, trend:82},
+    tech:{aesth:74, read:76, bold:65, access:72, trend:85},
+    warm:{aesth:78, read:78, bold:50, access:80, trend:62},
+    organic:{aesth:76, read:80, bold:42, access:82, trend:60},
+    luxury:{aesth:86, read:80, bold:55, access:78, trend:75},
+    y2k:{aesth:70, read:64, bold:82, access:58, trend:88},
+    classic:{aesth:82, read:82, bold:48, access:80, trend:66},
+    sporty:{aesth:72, read:72, bold:78, access:66, trend:78},
+    cozy:{aesth:76, read:80, bold:46, access:82, trend:63}
+  };
+  const toneAdj = (k)=>({
+    trust:{read:+6, access:+6, bold:-6, trend:-2}[k]||0,
+    friendly:{read:+2, access:+2, aesth:+2, bold:-2}[k]||0,
+    bold:{bold:+10, read:-4, access:-4, trend:+4}[k]||0,
+    warm:{aesth:+3, read:+3, access:+3, trend:-2}[k]||0
+  }[tone]||0);
+
+  const prof = base[moodKey] || base.modern;
+  const box = document.getElementById('barBox'); box.innerHTML='';
+  dims.forEach(d=>{
+    const v = Math.max(0, Math.min(100, (prof[d.key]||70)+(toneAdj(d.key)||0)));
+    box.insertAdjacentHTML('beforeend',
+      `<div class="barRow"><div class="small">${d.label}</div><div class="bar"><i style="width:${v}%"></i></div></div>`
+    );
+  });
+}
+
+/* ========================= 팔레트/대비 ========================= */
 const $=s=>document.querySelector(s);
 function hexToRgb(hex){hex=hex.replace('#',''); if(hex.length===3) hex=[hex[0],hex[0],hex[1],hex[1],hex[2],hex[2]].join(''); const num=parseInt(hex,16); return {r:(num>>16)&255,g:(num>>8)&255,b:num&255}}
 function luminance({r,g,b}){const s=[r/255,g/255,b/255].map(v=>v<=0.03928?v/12.92:((v+0.055)/1.055)**2.4);return 0.2126*s[0]+0.7152*s[1]+0.0722*s[2]}
 function contrast(hex1,hex2){const L1=luminance(hexToRgb(hex1)),L2=luminance(hexToRgb(hex2));const[a,b]=L1>L2?[L1,L2]:[L2,L1];return (a+0.05)/(b+0.05)}
-function drawSwatches(pal){const box=$('#swatches'); box.innerHTML=''; pal.forEach(c=>box.insertAdjacentHTML('beforeend',`<div class="c"><div style="background:${c}"></div><span>${c.toUpperCase()}</span></div>`));}
-function pick(arr,n=1){const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]];} return a.slice(0,n);}
+function drawSwatches(pal){ const box=$('#swatches'); box.innerHTML=''; pal.forEach(c=>{box.insertAdjacentHTML('beforeend',`<div class="c"><div style="background:${c}"></div><span>${c.toUpperCase()}</span></div>`);}); }
 
-/* ===== 무드 점수 ===== */
+/* ========================= 레이아웃 비율(정확/추천) ========================= */
+function renderRatioPreview(ratios, activeSet=new Set()){
+  const line = $('#ratioLine'); line.innerHTML='';
+  ratios.forEach(r=>{
+    const el = document.createElement('div'); el.className='ratio'; el.dataset.ratio=r;
+    if(activeSet.has(r)) el.classList.add('active');
+    const inner = document.createElement('div'); inner.className='inner';
+    const lab = document.createElement('label'); lab.textContent = r;
+    el.appendChild(inner); el.appendChild(lab); line.appendChild(el);
+  });
+
+  // 프레임 크기에 맞춰 내부 사각형을 정확 비율로 센터링 (w/h가 0인 경우 대비값 사용)
+  const frames = line.querySelectorAll('.ratio');
+  frames.forEach(box=>{
+    let w = box.clientWidth-16, h = box.clientHeight-16;
+    if(w<=0||h<=0){ w=92; h=56; } // 일부 브라우저에서 레이아웃 전 0 나오는 이슈 방지
+    const [a,b] = box.dataset.ratio.split(':').map(Number);
+    let iw = w, ih = iw*(b/a);
+    if(ih>h){ ih=h; iw=ih*(a/b); }
+    const inner = box.querySelector('.inner');
+    inner.style.width = iw+'px';
+    inner.style.height = ih+'px';
+    inner.style.left = ((w-iw)/2 + 8)+'px';
+    inner.style.top  = ((h-ih)/2 + 8)+'px';
+  });
+}
+
+// 추천 비율 선정
+function recommendRatios(platform, goal, tone){
+  const score = {'1:1':0,'4:5':0,'16:9':0};
+  if(platform==='sns'){ score['1:1']+=3; score['4:5']+=3; score['16:9']+=1; }
+  if(platform==='poster'){ score['4:5']+=4; score['1:1']+=2; score['16:9']+=1; }
+  if(platform==='web'||platform==='app'){ score['16:9']+=4; score['4:5']+=2; score['1:1']+=1; }
+  if(goal==='campaign'){ score['4:5']+=1; score['16:9']+=1; }
+  if(tone==='bold'){ Object.keys(score).forEach(k=>score[k]+=0.5); }
+  const top = Object.entries(score).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k])=>k);
+  return new Set(top);
+}
+
+/* ========================= 결과 생성 ========================= */
 function scoreMood({industry,goal,platform,audience,tone,brand,visual,energy}){
-  const s={}; Object.keys(MOODS).forEach(k=>s[k]=0);
-  const add=(k,v)=>{if(k in s) s[k]+=v};
-
-  // 산업군
-  if(industry==='tech'){ add('tech',3); add('modern',2); add('futuristic',2); add('minimal',1); }
-  if(industry==='fashion'){ add('pop',2); add('luxury',1); add('editorial',1); add('pastel',1); }
-  if(industry==='food'){ add('warm',2); add('natural',2); add('pastel',1); }
-  if(industry==='finance'){ add('modern',2); add('minimal',2); add('luxury',1); add('monochrome',1); }
-  if(industry==='culture'){ add('retro',2); add('editorial',1); add('brutal',1); }
+  const s = {modern:0,minimal:0,retro:0,brutal:0,pop:0,tech:0,warm:0,organic:0,luxury:0,y2k:0,classic:0,sporty:0,cozy:0};
+  const add=(k,v)=>s[k]+=v;
+  if(industry==='tech'){ add('tech',3); add('modern',2); add('minimal',1); }
+  if(industry==='fashion'){ add('pop',2); add('modern',1); add('retro',1); add('luxury',1); }
+  if(industry==='food'){ add('warm',2); add('pop',1); add('organic',1); }
+  if(industry==='finance'){ add('modern',2); add('minimal',2); add('luxury',1); }
+  if(industry==='culture'){ add('retro',2); add('modern',1); add('brutal',1); }
   if(industry==='edu'){ add('minimal',2); add('modern',1); add('warm',1); }
   if(industry==='sports'){ add('sporty',2); add('brutal',1); add('pop',1); }
-  if(industry==='travel'){ add('natural',2); add('warm',1); add('pop',1); }
-  if(industry==='auto'){ add('tech',2); add('modern',2); add('futuristic',2); }
-  if(industry==='game'){ add('y2k',2); add('cyberpunk',2); add('pop',1); }
-  if(industry==='estate'){ add('modern',2); add('minimal',2); add('luxury',1); }
-  if(industry==='health'){ add('warm',2); add('minimal',2); add('natural',1); }
-  if(industry==='home'){ add('warm',2); add('natural',1); add('minimal',1); }
-  if(industry==='music'){ add('pop',2); add('y2k',1); add('editorial',1); }
-  if(industry==='ngo'){ add('warm',2); add('minimal',1); add('natural',1); }
+  if(industry==='travel'){ add('warm',2); add('pop',1); add('organic',1); }
+  if(industry==='auto'){ add('tech',2); add('modern',2); add('sporty',1); }
+  if(industry==='game'){ add('tech',1); add('pop',2); add('y2k',2); add('brutal',1); }
+  if(industry==='estate'){ add('classic',2); add('modern',2); add('minimal',1); }
+  if(industry==='health'){ add('warm',2); add('minimal',2); add('organic',1); }
+  if(industry==='home'){ add('cozy',2); add('minimal',1); }
+  if(industry==='music'){ add('pop',2); add('y2k',1); }
+  if(industry==='ngo'){ add('warm',2); add('organic',1); }
 
-  // 목적
   if(goal==='conversion'){ add('modern',1); add('brutal',1); add('pop',1); }
-  if(goal==='awareness'){ add('minimal',1); add('modern',1); add('retro',1); add('editorial',1); }
+  if(goal==='awareness'){ add('minimal',1); add('modern',1); add('retro',1); }
   if(goal==='education'){ add('minimal',2); add('warm',1); }
-  if(goal==='campaign'){ add('pop',2); add('brutal',2); add('sporty',1); }
+  if(goal==='campaign'){ add('pop',2); add('brutal',2); }
 
-  // 용도/매체
-  if(platform==='web'){ add('modern',2); add('minimal',1); add('editorial',1); }
-  if(platform==='app'){ add('minimal',2); add('modern',1); add('tech',1); }
-  if(platform==='sns'){ add('pop',2); add('brutal',1); add('y2k',1); }
-  if(platform==='poster'){ add('retro',2); add('editorial',2); }
+  if(platform==='web'){ add('modern',2); add('minimal',1); }
+  if(platform==='app'){ add('minimal',2); add('modern',1); }
+  if(platform==='sns'){ add('pop',2); add('brutal',1); }
+  if(platform==='poster'){ add('retro',2); add('classic',1); }
 
-  // 타겟
-  if(audience==='youth'){ add('pop',2); add('y2k',1); add('brutal',1); }
+  if(audience==='youth'){ add('pop',2); add('y2k',1); }
   if(audience==='adult'){ add('minimal',1); add('warm',1); }
-  if(audience==='pro'){ add('modern',2); add('editorial',1); add('monochrome',1); }
-  if(audience==='premium'){ add('luxury',2); add('modern',1); add('minimal',1); }
+  if(audience==='pro'){ add('modern',2); add('minimal',1); }
+  if(audience==='premium'){ add('luxury',2); add('classic',1); }
 
-  // 톤
-  if(tone==='trust'){ add('modern',2); add('minimal',1); add('monochrome',1); }
-  if(tone==='friendly'){ add('warm',2); add('pastel',1); add('pop',1); }
-  if(tone==='bold'){ add('brutal',2); add('pop',1); add('cyberpunk',1); }
-  if(tone==='warm'){ add('warm',2); add('natural',1); }
+  if(tone==='trust'){ add('modern',2); add('minimal',1); add('classic',1); }
+  if(tone==='friendly'){ add('warm',2); add('pop',1); add('cozy',1); }
+  if(tone==='bold'){ add('brutal',2); add('pop',1); }
+  if(tone==='warm'){ add('warm',2); add('retro',1); add('organic',1); }
 
-  // 브랜드 성격
-  if(brand==='innovative'){ add('tech',2); add('futuristic',2); add('modern',1); }
-  if(brand==='reliable'){ add('modern',2); add('minimal',1); add('monochrome',1); }
-  if(brand==='friendly'){ add('pop',2); add('warm',1); add('pastel',1); }
-  if(brand==='luxury'){ add('luxury',3); add('minimal',1); add('modern',1); }
+  if(brand==='innovative'){ add('tech',2); add('modern',1); }
+  if(brand==='reliable'){ add('modern',2); add('minimal',1); }
+  if(brand==='friendly'){ add('pop',2); add('warm',1); }
+  if(brand==='luxury'){ add('luxury',2); add('classic',1); }
 
-  // 이미지 스타일
-  if(visual==='photo'){ add('modern',1); add('warm',1); add('luxury',1); }
-  if(visual==='illustration'){ add('pop',1); add('retro',1); add('pastel',1); }
-  if(visual==='iconic'){ add('tech',1); add('minimal',1); add('editorial',1); }
+  if(visual==='photo'){ add('modern',1); add('warm',1); }
+  if(visual==='illustration'){ add('pop',1); add('retro',1); }
+  if(visual==='iconic'){ add('tech',1); add('minimal',1); }
   if(visual==='mixed'){ add('modern',1); add('pop',1); }
 
-  // 에너지
-  if(energy==='calm'){ add('minimal',2); add('warm',1); add('monochrome',1); }
+  if(energy==='calm'){ add('minimal',2); add('warm',1); }
   if(energy==='balanced'){ add('modern',1); }
-  if(energy==='dynamic'){ add('brutal',2); add('pop',1); add('sporty',1); add('y2k',1); }
+  if(energy==='dynamic'){ add('brutal',2); add('pop',1); add('tech',1); }
 
   const entries = Object.entries(s).sort((a,b)=>b[1]-a[1]);
   return {winner: entries[0][0], scores: s};
 }
 
-/* ===== 성향/구성 그래프 ===== */
-function drawBars(moodKey, tone){
-  const dims=[{key:'aesth',label:'심미성'},{key:'read',label:'가독성'},{key:'bold',label:'대담함'},{key:'access',label:'편의성'},{key:'trend',label:'트렌드성'}];
-  const base={
-    modern:{aesth:80,read:85,bold:55,access:80,trend:70},
-    minimal:{aesth:78,read:88,bold:40,access:85,trend:65},
-    retro:{aesth:75,read:72,bold:60,access:70,trend:60},
-    brutal:{aesth:68,read:60,bold:90,access:55,trend:75},
-    pop:{aesth:72,read:70,bold:78,access:65,trend:82},
-    tech:{aesth:74,read:76,bold:65,access:72,trend:85},
-    warm:{aesth:78,read:78,bold:50,access:80,trend:62},
-    natural:{aesth:76,read:80,bold:45,access:82,trend:60},
-    luxury:{aesth:86,read:82,bold:58,access:78,trend:75},
-    y2k:{aesth:74,read:66,bold:82,access:58,trend:88},
-    cyberpunk:{aesth:72,read:62,bold:85,access:56,trend:86},
-    sporty:{aesth:70,read:70,bold:80,access:68,trend:78},
-    editorial:{aesth:84,read:82,bold:54,access:78,trend:72},
-    monochrome:{aesth:80,read:84,bold:48,access:82,trend:68},
-    pastel:{aesth:76,read:78,bold:50,access:76,trend:72},
-    futuristic:{aesth:78,read:74,bold:70,access:70,trend:86},
-    craft:{aesth:74,read:76,bold:52,access:78,trend:60}
-  };
-  const toneAdj=k=>({trust:{read:+6,access:+6,bold:-6}[k]||0,friendly:{read:+2,access:+2,aesth:+2,bold:-2}[k]||0,bold:{bold:+10,read:-4,access:-4,trend:+4}[k]||0,warm:{aesth:+3,read:+3,access:+3,trend:-2}[k]||0}[tone]||0);
-  const prof=base[moodKey]; const box=$('#barBox'); box.innerHTML='';
-  dims.forEach(d=>{const v=Math.max(0,Math.min(100,(prof[d.key]||70)+(toneAdj(d.key)||0))); box.insertAdjacentHTML('beforeend',`<div class="barRow"><div class="small">${d.label}</div><div class="bar"><i style="width:${v}%"></i></div></div>`);});
-}
-function drawCompositionBars(platform,goal,tone){
-  let img=50,txt=35,white=15,cta=50;
-  if(platform==='sns'){ if(goal==='education'){img=30;txt=50;white=20;cta=35;} else if(goal==='campaign'){img=55;txt=30;white=15;cta=70;} else {img=60;txt=30;white=10;cta=55;} }
-  else if(platform==='web'){ img=45;txt=35;white=20;cta=(goal==='conversion'?75:55); }
-  else if(platform==='app'){ img=40;txt=40;white=20;cta=(goal==='conversion'?70:50); }
-  else if(platform==='poster'){ img=60;txt=25;white=15;cta=(goal==='campaign'?65:45); }
-  if(tone==='bold'){ img+=5;white-=3;cta+=8; } if(tone==='friendly'){ txt+=5;white+=2; } if(tone==='trust'){ txt+=4;white+=3;cta-=5; } if(tone==='warm'){ white+=3; }
-  const rows=[{label:'이미지 비중',val:img},{label:'텍스트 비중',val:txt},{label:'여백(호흡)',val:white},{label:'CTA 강조',val:cta}];
-  const box=$('#compBars'); box.innerHTML=''; rows.forEach(r=>{const v=Math.max(0,Math.min(100,r.val)); box.insertAdjacentHTML('beforeend',`<div class="barRow"><div class="small">${r.label}</div><div class="bar"><i style="width:${v}%"></i></div></div>`);});
+function drawBarsComposition(platform, goal, tone){
+  let img=50, txt=35, white=15, cta=50;
+  if(platform==='sns'){
+    if(goal==='education'){ img=30; txt=50; white=20; cta=35; }
+    else if(goal==='campaign'){ img=55; txt=30; white=15; cta=70; }
+    else { img=60; txt=30; white=10; cta=55; }
+  }else if(platform==='web'){ img=45; txt=35; white=20; cta=(goal==='conversion'?75:55); }
+  else if(platform==='app'){ img=40; txt=40; white=20; cta=(goal==='conversion'?70:50); }
+  else if(platform==='poster'){ img=60; txt=25; white=15; cta=(goal==='campaign'?65:45); }
 }
 
-/* ===== 레이아웃 비율 추천 ===== */
-function renderRatioPreview(ratios, activeSet){
-  const line=$('#ratioLine'); line.innerHTML='';
-  ratios.forEach(r=>{
-    const el=document.createElement('div'); el.className='ratio'; el.dataset.ratio=r;
-    if(activeSet.has(r)) el.classList.add('active');
-    const inner=document.createElement('div'); inner.className='inner';
-    const lab=document.createElement('label'); lab.textContent=r;
-    el.appendChild(inner); el.appendChild(lab); line.appendChild(el);
-  });
-  // 정확 비율로 내부 사각형 렌더링
-  line.querySelectorAll('.ratio').forEach(box=>{
-    const pad=8; const w=box.clientWidth-pad*2, h=box.clientHeight-pad*2;
-    const [a,b]=box.dataset.ratio.split(':').map(Number);
-    let iw=w, ih=iw*(b/a); if(ih>h){ ih=h; iw=ih*(a/b); }
-    const inner=box.querySelector('.inner'); inner.style.width=iw+'px'; inner.style.height=ih+'px'; inner.style.left=(pad+(w-iw)/2)+'px'; inner.style.top=(pad+(h-ih)/2)+'px';
-  });
+function validateAll(){
+  const ids = ['#q_industry','#q_goal','#q_platform','#q_audience','#q_tone','#q_ban','#q_brand','#q_visual','#q_energy'];
+  return ids.every(id => $(id).value !== '-');
 }
-// 비율 점수
-function recommendRatios(platform,goal,energy,tone){
-  const S={'1:1':0,'4:5':0,'16:9':0};
-  const add=(k,v)=>S[k]+=v;
-  if(platform==='sns'){ add('1:1',3); add('4:5',4); add('16:9',2); }
-  if(platform==='poster'){ add('4:5',4); add('1:1',2); add('16:9',2); }
-  if(platform==='web'){ add('16:9',4); add('4:5',2); add('1:1',1); }
-  if(platform==='app'){ add('1:1',3); add('4:5',3); add('16:9',1); }
-  if(goal==='campaign'){ add('4:5',1); add('16:9',1); }
-  if(goal==='education'){ add('1:1',1); }
-  if(energy==='dynamic'){ add('16:9',1); add('4:5',1); }
-  if(tone==='trust'){ add('1:1',1); }
-  const top=Object.entries(S).sort((a,b)=>b[1]-a[1]).slice(0,2).map(x=>x[0]);
-  return new Set(top);
+const modal = $('#modal');
+function openModal(){ modal.style.display='grid'; }
+function closeModal(){ modal.style.display='none'; }
+function resetForm(){
+  ['q_industry','q_goal','q_platform','q_audience','q_tone','q_ban','q_brand','q_visual','q_energy']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value='-'; });
 }
 
-/* ===== 타이포 추천(확장/세분화) ===== */
-function typoRecommend(audience,tone,brand,platform){
-  // 본문
-  let bodyPool = TYPE_FAMILIES.body.neutral;
-  if(audience==='premium' || brand==='luxury') bodyPool = [...TYPE_FAMILIES.body.proSerif, ...TYPE_FAMILIES.body.neutral];
-  if(tone==='friendly') bodyPool = [...TYPE_FAMILIES.body.friendly, ...TYPE_FAMILIES.body.neutral];
-  if(platform==='app') bodyPool = [...TYPE_FAMILIES.body.compact, ...bodyPool];
-  const bodyPick = pick(bodyPool,2);
-
-  // 헤드라인
-  let headPool = TYPE_FAMILIES.head.strongSans;
-  if(tone==='friendly') headPool = [...TYPE_FAMILIES.head.rounded, ...TYPE_FAMILIES.head.strongSans];
-  if(tone==='trust') headPool = [...TYPE_FAMILIES.head.humanist, ...TYPE_FAMILIES.head.strongSans];
-  if(tone==='warm') headPool = [...TYPE_FAMILIES.head.displaySerif, ...TYPE_FAMILIES.head.humanist];
-  if(brand==='innovative' || platform==='web' || platform==='app') headPool = [...headPool, ...TYPE_FAMILIES.head.tech];
-  const headPick = pick(headPool,2);
-
-  return {body: bodyPick, head: headPick, rule:'리딩 1.6–1.8 / 트래킹 0~+2 / 커닝은 제목 글자쌍 수동 보정'};
-}
-
-/* ===== 메인 결과 생성 ===== */
+/* =============== 메인 빌드 =============== */
 function buildResult(){
-  const industry=$('#q_industry').value, goal=$('#q_goal').value, platform=$('#q_platform').value;
-  const audience=$('#q_audience').value, tone=$('#q_tone').value, ban=$('#q_ban').value;
-  const brand=$('#q_brand').value, visual=$('#q_visual').value, energy=$('#q_energy').value;
+  const industry = $('#q_industry').value;
+  const goal = $('#q_goal').value;
+  const platform = $('#q_platform').value;
+  const audience = $('#q_audience').value;
+  const tone = $('#q_tone').value;
+  const ban = $('#q_ban').value;
+  const brand = $('#q_brand').value;
+  const visual = $('#q_visual').value;
+  const energy = $('#q_energy').value;
 
   // 태그/요약
-  $('#tagIndustry').textContent='#'+$('#q_industry').selectedOptions[0].textContent;
-  $('#tagGoal').textContent='#'+$('#q_goal').selectedOptions[0].textContent;
-  $('#tagPlatform').textContent='#'+$('#q_platform').selectedOptions[0].textContent;
-  $('#tagAudience').textContent='#'+$('#q_audience').selectedOptions[0].textContent;
-  $('#tagTone').textContent='#'+$('#q_tone').selectedOptions[0].textContent;
-  $('#tagBan').textContent=(ban==='none'?'#제약 없음':'#'+$('#q_ban').selectedOptions[0].textContent);
+  $('#tagIndustry').textContent = '#'+$('#q_industry').selectedOptions[0].textContent;
+  $('#tagGoal').textContent = '#'+$('#q_goal').selectedOptions[0].textContent;
+  $('#tagPlatform').textContent = '#'+$('#q_platform').selectedOptions[0].textContent;
+  $('#tagAudience').textContent = '#'+$('#q_audience').selectedOptions[0].textContent;
+  $('#tagTone').textContent = '#'+$('#q_tone').selectedOptions[0].textContent;
+  $('#tagBan').textContent = (ban==='none'?'#제약 없음':'#'+$('#q_ban').selectedOptions[0].textContent);
 
-  // 무드
-  const moodScores=scoreMood({industry,goal,platform,audience,tone,brand,visual,energy});
-  const moodKey=moodScores.winner, mood=MOODS[moodKey];
-  $('#summaryText').innerHTML=`선택한 조건을 바탕으로 <b>${mood.label}</b> 무드가 가장 적합해요. 이 무드 기준으로 팔레트·서체·레이아웃을 제안합니다.`;
-  $('#moodTitle').textContent=`#무드 추천 · ${mood.label}`;
-  const mt=$('#moodTags'); mt.innerHTML=''; (mood.tags||[]).forEach(t=>mt.insertAdjacentHTML('beforeend',`<span class="tag">${t}</span>`));
+  const moodScores = scoreMood({industry,goal,platform,audience,tone,brand,visual,energy});
+  const moodKey = moodScores.winner;
+  const mood = MOOD_INFO[moodKey];
 
-  // 팔레트 + 제약
-  let pal=[...mood.colors];
-  if(ban==='brandOnly'){ pal = pal.slice(0,2).concat(['#ffffff','#e5e7eb','#111827']); }
-  if(ban==='lowContrastOK'){ pal = pal.map((c,i)=> i===0?c:'#94a3b8'); }
-  if(ban==='imageLimited'){ /* 팔레트는 유지, 단 안내 문구만 */ }
+  $('#summaryText').innerHTML =
+    `선택한 조건을 바탕으로 <b>${mood.label}</b> 무드가 가장 적합합니다. 이 무드 기준으로 팔레트·서체·레이아웃·페르소나를 제안합니다.`;
+  $('#moodTitle').textContent = `#무드 추천 · ${mood.label}`;
+  const mt = $('#moodTags'); mt.innerHTML=''; (mood.tags||[]).forEach(t=>mt.insertAdjacentHTML('beforeend', `<span class="tag">${t}</span>`));
+
+  // 페르소나
+  const persona = buildPersona({industry,audience,platform,tone,brand,goal,visual,energy,moodKey});
+  const ph = $('#personaHeader'); ph.innerHTML='';
+  persona.headerTags.forEach(t=>ph.insertAdjacentHTML('beforeend', `<span class="tag">${t}</span>`));
+  $('#personaPoints').innerHTML = persona.bullets.map(x=>`<li>${x}</li>`).join('');
+  $('#personaImp').innerHTML = persona.implication;
+
+  // 팔레트 + 제약/대비
+  let pal = [...(mood.colors||['#111827','#2563eb','#e5e7eb','#0ea5e9','#f8fafc'])];
+  if(ban==='noNeon' && (moodKey==='pop'||moodKey==='tech'||moodKey==='y2k')){ pal = pal.map((hex,i)=> i===1||i===2 ? '#64748b' : hex); }
+  if(ban==='hiDensity'){ /* 과밀 금지 → 대비는 유지하고 중채도 선택 */ pal = pal.map((hex,i)=> i===1 ? '#334155' : hex); }
+  if(ban==='noStocky' && visual==='photo'){ /* 스톡 느낌 억제: 뉴트럴 팔레트 */ pal = ['#111827','#6b7280','#e5e7eb','#94a3b8','#f8fafc']; }
   drawSwatches(pal);
-  const ratio=contrast(pal[pal.length-1],'#111111'); $('#contrastNote').textContent = ratio>=7?'가독성: 매우 우수': ratio>=4.5?'가독성: 우수':'가독성: 보통'; $('#meter').style.width=Math.min(100,(ratio/7)*100)+'%';
+  const bg = pal[pal.length-1], fg = '#111111';
+  const ratio = contrast(bg, fg);
+  const label = ratio>=7 ? '가독성: 매우 우수' : ratio>=4.5 ? '가독성: 우수' : '가독성: 보통';
+  $('#contrastNote').textContent = label;
+  $('#meter').style.width = Math.min(100,(ratio/7)*100)+'%';
 
-  // 타이포(확장)
-  const T = typoRecommend(audience,tone,brand,platform);
+  // 타이포
+  const [body, head, rule] = typoRecommend(audience, tone);
   $('#typoList').innerHTML = `
-    <li>본문 후보: <b>${T.body.join(' / ')}</b></li>
-    <li>헤드라인 후보: <b>${T.head.join(' / ')}</b></li>
-    <li>${T.rule}</li>`;
-  $('#typeAccess').textContent = ($('#contrastNote').textContent).replace('가독성','웹 접근성');
+    <li>본문: <b>${body}</b></li>
+    <li>헤드라인: <b>${head}</b></li>
+    <li>${rule}</li>
+  `;
+  $('#typeAccess').textContent = label.replace('가독성','웹 접근성');
 
-  // 레이아웃 가이드(그래픽 실무)
-  $('#gridList').innerHTML=(LAYOUT_GUIDE[platform]||LAYOUT_GUIDE.web).map(g=>`<li>${g}</li>`).join('');
+  // 레이아웃 가이드 + 비율 추천
+  const guide = LAYOUT_GUIDE[platform] || LAYOUT_GUIDE.web;
+  $('#gridList').innerHTML = guide.map(g=>`<li>${g}</li>`).join('');
+  const ratios = ['1:1','4:5','16:9'];
+  const active = recommendRatios(platform, goal, tone);
+  renderRatioPreview(ratios, active);
 
-  // 레이아웃 비율 추천(추천만 진하게)
-  const activeSet = recommendRatios(platform,goal,energy,tone);
-  const baseRatios = ['1:1','4:5','16:9'];
-  renderRatioPreview(baseRatios, activeSet);
-
-  // 성향 그래프 & 구성 비율
-  drawBars(moodKey,tone);
-  drawCompositionBars(platform,goal,tone);
+  // 성향 그래프
+  drawBars(moodKey, tone);
 }
 
-/* ===== 검증/네비/초기화/인쇄 ===== */
-function validateAll(){return ['#q_industry','#q_goal','#q_platform','#q_audience','#q_tone','#q_ban','#q_brand','#q_visual','#q_energy'].every(id=>$(id).value!=='-')}
-const modal=$('#modal'); function openModal(){modal.style.display='grid'} function closeModal(){modal.style.display='none'}
-function resetForm(){['q_industry','q_goal','q_platform','q_audience','q_tone','q_ban','q_brand','q_visual','q_energy'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='-'})}
-$('#goResult').onclick=()=>{if(!validateAll()){openModal();return} buildResult(); $('#screen-ask').style.display='none'; $('#screen-result').style.display=''; window.scrollTo({top:0,behavior:'smooth'})}
-$('#back').onclick=()=>{resetForm(); $('#screen-result').style.display='none'; $('#screen-ask').style.display=''; window.scrollTo({top:0,behavior:'smooth'})}
-$('#print').onclick=()=>window.print();
+/* =============== 이벤트 =============== */
+document.getElementById('goResult').onclick=()=>{
+  if(!validateAll()){ openModal(); return; }
+  buildResult();
+  document.getElementById('screen-ask').style.display='none';
+  document.getElementById('screen-result').style.display='';
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+document.getElementById('back').onclick=()=>{
+  resetForm();
+  document.getElementById('screen-result').style.display='none';
+  document.getElementById('screen-ask').style.display='';
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+document.getElementById('print').onclick=()=>{ window.print(); };
 </script>
 </body>
 </html>
