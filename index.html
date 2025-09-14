@@ -10,7 +10,7 @@
     --bg:#fff; --fg:#0b0b0c; --muted:#6b7280; --line:#e5e7eb; --card:#f8fafc;
     --accent:#2563eb; --ok:#16a34a; --bad:#ef4444;
   }
-  *{box-sizing:border-box}
+  *{box-sizing:border-box; print-color-adjust:exact; -webkit-print-color-adjust:exact}
   html,body{margin:0}
   body{font-family:ui-sans-serif,system-ui,Apple SD Gothic Neo,Pretendard,Roboto,Helvetica,Arial;background:var(--bg);color:var(--fg)}
   header{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:20}
@@ -27,6 +27,7 @@
   .btn.primary{background:linear-gradient(180deg,#93c5fd,#60a5fa);border-color:transparent;font-weight:800}
   .small{font-size:12px;color:var(--muted)}
   .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+  .card>:last-child{margin-bottom:0} /* 카드 하단 불필요 여백 제거 */
   .col3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
   @media (max-width: 980px){ .col3{grid-template-columns:1fr} }
 
@@ -38,7 +39,6 @@
 
   .resultGrid{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
   @media (max-width: 980px){ .resultGrid{grid-template-columns:1fr} }
-  .hero{padding:18px;border:1px solid var(--line);border-radius:14px;background:#fff}
   .meter{height:12px;background:#f1f5f9;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
   .meter>i{display:block;height:100%;background:#22c55e}
 
@@ -47,34 +47,38 @@
   .bar{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden}
   .bar>i{display:block;height:100%;background:linear-gradient(90deg,#60a5fa,#22d3ee)}
 
-  /* 강조 무드 카드 */
-  .moodCard{
-    border:1px solid var(--line); border-radius:16px; padding:14px;
-    background:linear-gradient(135deg,#eff6ff 0%, #fff 50%, #fdf2f8 100%);
+  /* 요약 카드 내부 무드 강조 박스 */
+  .moodBox{
+    margin-top:10px; border:1px solid var(--line); border-radius:14px; padding:12px;
+    background:linear-gradient(135deg,#eff6ff 0%, #fff 45%, #fdf2f8 100%);
     box-shadow:0 6px 18px rgba(37,99,235,.08);
   }
-  .moodTitle{font-size:20px; font-weight:900; display:flex; align-items:center; gap:10px}
-  .moodTags{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .moodTitle{font-size:20px;font-weight:900;margin-bottom:6px}
+  .moodTags{display:flex;gap:8px;flex-wrap:wrap}
 
-  /* 더 컴팩트한 본문 크기(타이포/그리드 카드) */
+  /* 더 컴팩트한 글자(타이포/그리드) */
   .compact ul{font-size:13px; line-height:1.6; margin:6px 0 0 18px}
   .compact p, .compact .small{font-size:12px}
 
-  /* 레이아웃 미리보기 라인 */
+  /* 레이아웃 미리보기 프레임 */
   .previewLine{display:flex;gap:10px;align-items:center;flex-wrap:nowrap;overflow-x:auto}
   .ratio{
-    flex:0 0 auto; width:84px; height:56px; border:1px solid var(--line); border-radius:10px;
+    flex:0 0 auto; width:100px; height:64px; border:1px solid var(--line); border-radius:10px;
     position:relative; background:#fff;
   }
-  .ratio .inner{position:absolute; inset:8px; border:2px dotted #93c5fd; border-radius:6px}
-  .ratio[data-r="1:1"] .inner{inset:12px}
-  .ratio[data-r="4:5"] .inner{inset:8px 14px}
-  .ratio[data-r="16:9"] .inner{inset:12px 6px}
+  .ratio .inner{position:absolute; border:2px dotted #93c5fd; border-radius:6px}
   .ratio label{position:absolute; bottom:4px; left:0; right:0; text-align:center; font-size:11px; color:#334155}
 
   /* 모달 */
   .modal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.35); z-index:50}
   .modal .box{background:#fff; border-radius:14px; padding:16px 18px; width:min(360px,92vw); box-shadow:0 10px 30px rgba(0,0,0,.2)}
+
+  /* 인쇄: 색상 정확 출력 + 여백 정돈 */
+  @media print{
+    header{position:static; background:#fff}
+    .btn{display:none}
+    body{background:#fff}
+  }
 </style>
 </head>
 <body>
@@ -95,6 +99,7 @@
     </div>
 
     <div class="col3">
+      <!-- ① 산업군 -->
       <div class="card">
         <h3>① 산업군</h3>
         <select id="q_industry">
@@ -118,6 +123,7 @@
         <p class="small">무드·타이포·이미저리에 가중치 적용</p>
       </div>
 
+      <!-- ② 목적 -->
       <div class="card">
         <h3>② 목적</h3>
         <select id="q_goal">
@@ -130,18 +136,20 @@
         <p class="small">CTA 강도·정보 위계에 반영</p>
       </div>
 
+      <!-- ③ 용도/매체 -->
       <div class="card">
         <h3>③ 용도/매체</h3>
         <select id="q_platform">
           <option value="-">-</option>
           <option value="web">웹 랜딩/프로덕트</option>
           <option value="app">모바일 앱</option>
-          <option value="sns">SNS/배너</option>
+          <option value="sns">SNS/배너/카드뉴스</option>
           <option value="poster">포스터/인쇄</option>
         </select>
         <p class="small">그리드/세이프 존/텍스트 사이즈 반영</p>
       </div>
 
+      <!-- ④ 타겟 -->
       <div class="card">
         <h3>④ 타겟</h3>
         <select id="q_audience">
@@ -155,6 +163,7 @@
         <p class="small">가독성/개성/대담함 가중치</p>
       </div>
 
+      <!-- ⑤ 톤 -->
       <div class="card">
         <h3>⑤ 톤앤매너</h3>
         <select id="q_tone">
@@ -167,6 +176,7 @@
         <p class="small">타이포/컬러 대비에 반영</p>
       </div>
 
+      <!-- ⑥ 제약 -->
       <div class="card">
         <h3>⑥ 제약 사항</h3>
         <select id="q_ban">
@@ -179,6 +189,7 @@
         <p class="small">팔레트·컴포넌트 스타일 제약</p>
       </div>
 
+      <!-- ⑦ 브랜드 성격 -->
       <div class="card">
         <h3>⑦ 브랜드 성격</h3>
         <select id="q_brand">
@@ -191,6 +202,7 @@
         <p class="small">무드·타이포 미세 조정</p>
       </div>
 
+      <!-- ⑧ 이미지 스타일 -->
       <div class="card">
         <h3>⑧ 이미지 스타일</h3>
         <select id="q_visual">
@@ -203,6 +215,7 @@
         <p class="small">이미지/아이콘 방향 제안</p>
       </div>
 
+      <!-- ⑨ 에너지 레벨 -->
       <div class="card">
         <h3>⑨ 에너지 레벨</h3>
         <select id="q_energy">
@@ -226,14 +239,14 @@
       <h2>🎯 컨셉 보드</h2>
       <div class="row">
         <button class="btn" id="back">◀ 다시 선택</button>
-        <button class="btn" onclick="window.print()">인쇄/PDF</button>
+        <button class="btn" id="print">인쇄/PDF</button>
       </div>
     </div>
 
     <div class="resultGrid">
-      <!-- 왼쪽: 요약/무드/팔레트/카피&이미지 -->
+      <!-- 왼쪽: 요약(무드 포함)/팔레트/구성비율 -->
       <div class="grid" style="gap:14px">
-        <div class="card">
+        <div class="card" id="summaryCard">
           <h3>📌 요약</h3>
           <div class="row" style="gap:8px;margin-top:4px">
             <span class="tag" id="tagIndustry">#산업</span>
@@ -244,12 +257,12 @@
             <span class="tag" id="tagBan">#제약</span>
           </div>
           <p class="small" id="summaryText" style="margin-top:8px"></p>
-        </div>
 
-        <!-- 강조: 무드 카드 (요약 바로 아래) -->
-        <div class="moodCard" id="moodCard">
-          <div class="moodTitle" id="moodTitle">무드 자동 판정</div>
-          <div class="moodTags" id="moodTags"></div>
+          <!-- 무드 추천(강조) -->
+          <div class="moodBox">
+            <div class="moodTitle" id="moodTitle">무드 자동 판정</div>
+            <div class="moodTags" id="moodTags"></div>
+          </div>
         </div>
 
         <div class="card">
@@ -261,15 +274,15 @@
           </div>
         </div>
 
-        <!-- 좌측 하단 영역: 카피 톤 & CTA + 이미지 방향 제안 -->
+        <!-- 새 카드: 구성 비율 추천 -->
         <div class="card">
-          <h3>✍️ 카피 톤 & CTA · 🖼️ 이미지 방향</h3>
-          <ul id="copyList" style="margin:6px 0 0 18px; line-height:1.6; font-size:13px"></ul>
-          <ul id="imageList" style="margin:6px 0 0 18px; line-height:1.6; font-size:13px"></ul>
+          <h3>📐 구성 비율 추천</h3>
+          <div class="bars" id="compBars" style="margin-top:8px"></div>
+          <p class="small">* 이미지/텍스트/여백/CTA 비중을 참고해 레이아웃 밀도를 조절하세요.</p>
         </div>
       </div>
 
-      <!-- 오른쪽: 타이포/그리드/그래프 -->
+      <!-- 오른쪽: 타이포/그리드/성향 그래프 -->
       <div class="grid" style="gap:14px">
         <div class="card compact">
           <h3>🔡 타이포그래피</h3>
@@ -282,9 +295,7 @@
           <ul id="gridList"></ul>
           <div class="small" style="margin-top:8px">레이아웃 미리보기</div>
           <div class="previewLine" id="ratioLine">
-            <div class="ratio" data-r="1:1"><div class="inner"></div><label>1:1</label></div>
-            <div class="ratio" data-r="4:5"><div class="inner"></div><label>4:5</label></div>
-            <div class="ratio" data-r="16:9"><div class="inner"></div><label>16:9</label></div>
+            <!-- JS에서 정확 비율로 렌더링 -->
           </div>
         </div>
 
@@ -311,9 +322,7 @@
 </div>
 
 <script>
-/* =========================
-   데이터 맵
-========================= */
+/* ========================= 데이터 맵 ========================= */
 const MOOD_INFO = {
   modern:{label:'모더니즘 🧩', colors:['#111827','#2563eb','#e5e7eb','#0ea5e9','#f8fafc'], tags:['질서','보편성','절제']},
   minimal:{label:'미니멀 🌫️', colors:['#0f172a','#94a3b8','#f1f5f9','#334155','#e2e8f0'], tags:['여백','정돈','차분']},
@@ -324,11 +333,31 @@ const MOOD_INFO = {
   warm:{label:'웜/휴먼 ☕', colors:['#1f2937','#d97706','#b45309','#fde68a','#fdf2f8'], tags:['따뜻','휴먼','신뢰']}
 };
 
-const GRID_BY_PLATFORM = {
-  web:['12 컬럼 그리드','베이스라인 4/8pt','모듈형 카드 패턴','세이프 존 준수(배너/썸넬)'],
-  app:['모듈러 그리드','컴포넌트 기반(버튼/리스트/카드)','베이스라인 4/8pt','터치 타겟 규격 준수'],
-  poster:['8 컬럼 또는 모듈러','대비 강한 헤드라인','여백/정렬(Alignment) 강조','세부 정보 위계'],
-  sns:['1:1/4:5/16:9 템플릿','키 비주얼 중심','세이프 존 준수','간결한 헤드라인']
+const LAYOUT_GUIDE = {
+  web:[
+    '히어로(첫 화면)에 핵심 문구 5–8단어 + 주요 CTA 1개 배치',
+    '텍스트 라인 길이 45–75자 권장, 섹션 간 간격 48–72px',
+    '리드 문단은 16–18px, 카드형 리스트로 정보 덩어리화',
+    '폼/다운로드 등 전환 요소는 1차 CTA와 시각적으로 그룹화'
+  ],
+  app:[
+    '컴포넌트 반복(카드/리스트/버튼)로 리듬 유지, 터치 타겟 최소 44px',
+    '상단 탭/하단 네비게이션에 우선 흐름 배치',
+    '가독성을 위해 본문 15–17px, 인터랙션 상태(hover/tap) 명료화',
+    '모달/시트는 1회성 정보에만 사용, 과도한 중첩 금지'
+  ],
+  sns:[
+    '카드뉴스: 슬라이드당 20–40자, 10장 기준 1–2개의 핵심 메시지',
+    '텍스트:이미지 비중 6:4 ~ 4:6 사이, 첫 장은 썸네일/키비주얼',
+    '시리즈 단일 템플릿(타이틀/바디/출처)로 일관성 유지',
+    '세이프 존(가장자리 60px 내외) 확보, 번호·진행바로 컨텍스트 제공'
+  ],
+  poster:[
+    '키 메시지 5–7단어, 보조 정보는 계층화(장소/일시/문의)',
+    'QR/URL 대비 확보(스캔 거리 고려), 미세 여백으로 시선 유도',
+    '거리/근접 시나리오 분리: 멀리서 제목·색, 가까이서 상세',
+    '인쇄 시 최소 3mm 여분, 이미지 해상도 200–300ppi'
+  ]
 };
 
 const CTA_BY_GOAL = {
@@ -348,15 +377,14 @@ const INDUSTRY_IMAGERY = {
   sports:['액션 샷','다이내믹 타이포','팀 컬러','스코어 보드'],
   travel:['풍경/지도 메타포','따뜻한 색감','일러스트 스팟','사진+아이콘 혼합'],
   auto:['동적 모션','메탈/광택 질감','테크 무드','실루엣 강조'],
-  game:['픽셀/네온 포인트','콘셉트 아트','대담한 헤드라인','UI HUD 모티프'],
+  game:['네온 포인트','콘셉트 아트','대담한 헤드라인','HUD 모티프'],
   estate:['광각 사진','정갈한 선','신뢰감 색채','정보 위계'],
   health:['청결 화이트','파스텔 포인트','인포그래픽','안정감 사진'],
   home:['제품 질감','라이프스타일 샷','소프트 톤','심플 아이콘'],
-  music:['무대/조명','앨범 아트 무드','리듬감 있는 타이포','네온 포인트'],
+  music:['무대/조명','앨범 아트 무드','리듬 타이포','네온 포인트'],
   ngo:['현장 사진','진정성 컬러','정보 투명성','일러스트 보조']
 };
 
-/* 타이포 추천 (간결/직관) */
 function typoRecommend(audience, tone){
   const body = (audience==='premium') ? 'Noto Serif/Source Serif (신뢰·서사 16–18px)'
               : (audience==='pro' || tone==='trust') ? 'Pretendard/Inter (가독성 16–18px)'
@@ -368,14 +396,12 @@ function typoRecommend(audience, tone){
   return [body, head, '리딩 1.6–1.8 / 트래킹 0~+2 / 커닝은 제목 글자쌍 수동 보정'];
 }
 
-/* =========================
-   무드 점수 규칙 (세분화)
-========================= */
+/* ========================= 무드 점수(세분화) ========================= */
 function scoreMood({industry,goal,platform,audience,tone,brand,visual,energy}){
   const s = {modern:0,minimal:0,retro:0,brutal:0,pop:0,tech:0,warm:0};
+  const add=(k,v)=>s[k]+=v;
 
   // 산업군
-  const add=(k,v)=>s[k]+=v;
   if(industry==='tech'){ add('tech',3); add('modern',2); add('minimal',1); }
   if(industry==='fashion'){ add('pop',2); add('modern',1); add('retro',1); }
   if(industry==='food'){ add('warm',2); add('pop',1); add('modern',1); }
@@ -428,7 +454,7 @@ function scoreMood({industry,goal,platform,audience,tone,brand,visual,energy}){
   if(visual==='iconic'){ add('tech',1); add('minimal',1); }
   if(visual==='mixed'){ add('modern',1); add('pop',1); }
 
-  // 에너지 레벨
+  // 에너지
   if(energy==='calm'){ add('minimal',2); add('warm',1); }
   if(energy==='balanced'){ add('modern',1); }
   if(energy==='dynamic'){ add('brutal',2); add('pop',1); add('tech',1); }
@@ -437,18 +463,14 @@ function scoreMood({industry,goal,platform,audience,tone,brand,visual,energy}){
   return {winner: entries[0][0], scores: s};
 }
 
-/* =========================
-   유틸/접근성
-========================= */
+/* ========================= 유틸 & 접근성 ========================= */
 const $=s=>document.querySelector(s);
 function hexToRgb(hex){hex=hex.replace('#',''); if(hex.length===3) hex=[hex[0],hex[0],hex[1],hex[1],hex[2],hex[2]].join(''); const num=parseInt(hex,16); return {r:(num>>16)&255,g:(num>>8)&255,b:num&255}}
 function luminance({r,g,b}){const s=[r/255,g/255,b/255].map(v=>v<=0.03928?v/12.92:((v+0.055)/1.055)**2.4);return 0.2126*s[0]+0.7152*s[1]+0.0722*s[2]}
 function contrast(hex1,hex2){const L1=luminance(hexToRgb(hex1)),L2=luminance(hexToRgb(hex2));const[a,b]=L1>L2?[L1,L2]:[L2,L1];return (a+0.05)/(b+0.05)}
 function drawSwatches(pal){ const box=$('#swatches'); box.innerHTML=''; pal.forEach(c=>{box.insertAdjacentHTML('beforeend',`<div class="c"><div style="background:${c}"></div><span>${c.toUpperCase()}</span></div>`);}); }
 
-/* =========================
-   그래프(수제 막대)
-========================= */
+/* ========================= 성향 그래프 ========================= */
 function drawBars(moodKey, tone){
   const dims = [
     {key:'aesth', label:'심미성'}, {key:'read', label:'가독성'},
@@ -481,9 +503,69 @@ function drawBars(moodKey, tone){
   });
 }
 
-/* =========================
-   결과 생성
-========================= */
+/* ========================= 구성 비율 추천 ========================= */
+function drawCompositionBars(platform, goal, tone){
+  // 기본값
+  let img=50, txt=35, white=15, cta=50;
+  if(platform==='sns'){
+    if(goal==='education'){ img=30; txt=50; white=20; cta=35; }      // 카드뉴스
+    else if(goal==='campaign'){ img=55; txt=30; white=15; cta=70; }   // 이벤트
+    else { img=60; txt=30; white=10; cta=55; }                        // 일반
+  }else if(platform==='web'){
+    img=45; txt=35; white=20; cta=(goal==='conversion'?75:55);
+  }else if(platform==='app'){
+    img=40; txt=40; white=20; cta=(goal==='conversion'?70:50);
+  }else if(platform==='poster'){
+    img=60; txt=25; white=15; cta=(goal==='campaign'?65:45);
+  }
+  // 톤 보정
+  if(tone==='bold'){ img+=5; white-=3; cta+=8; }
+  if(tone==='friendly'){ txt+=5; white+=2; }
+  if(tone==='trust'){ txt+=4; white+=3; cta-=5; }
+  if(tone==='warm'){ white+=3; }
+
+  const rows = [
+    {label:'이미지 비중', val:img},
+    {label:'텍스트 비중', val:txt},
+    {label:'여백(호흡)', val:white},
+    {label:'CTA 강조', val:cta}
+  ];
+  const box = $('#compBars'); box.innerHTML='';
+  rows.forEach(r=>{
+    const v = Math.max(0, Math.min(100, r.val));
+    box.insertAdjacentHTML('beforeend',
+      `<div class="barRow"><div class="small">${r.label}</div>
+         <div class="bar"><i style="width:${v}%"></i></div>
+       </div>`);
+  });
+}
+
+/* ========================= 레이아웃 미리보기(정확 비율) ========================= */
+function renderRatioPreview(ratios){
+  const line = $('#ratioLine'); line.innerHTML='';
+  ratios.forEach(r=>{
+    const el = document.createElement('div'); el.className='ratio'; el.dataset.ratio=r;
+    const inner = document.createElement('div'); inner.className='inner';
+    const lab = document.createElement('label'); lab.textContent = r;
+    el.appendChild(inner); el.appendChild(lab); line.appendChild(el);
+  });
+  // 프레임 크기에 맞춰 내부 사각형을 정확 비율로 센터링
+  line.querySelectorAll('.ratio').forEach(box=>{
+    const [w,h] = [box.clientWidth-16, box.clientHeight-16]; // 테두리 안쪽 가용 영역
+    const [a,b] = box.dataset.ratio.split(':').map(Number);
+    const targetW = w, targetH = targetW*(b/a);
+    let iw, ih;
+    if(targetH<=h){ iw=targetW; ih=targetH; }
+    else{ ih=h; iw=ih*(a/b); }
+    const inner = box.querySelector('.inner');
+    inner.style.width = iw+'px';
+    inner.style.height = ih+'px';
+    inner.style.left = ((w-iw)/2 + 8)+'px';
+    inner.style.top  = ((h-ih)/2 + 8)+'px';
+  });
+}
+
+/* ========================= 결과 생성 ========================= */
 function buildResult(){
   const industry = $('#q_industry').value;
   const goal = $('#q_goal').value;
@@ -507,14 +589,14 @@ function buildResult(){
   const moodKey = moodScores.winner;
   const mood = MOOD_INFO[moodKey];
 
-  // 요약/무드
+  // 요약 & 무드 강조
   $('#summaryText').innerHTML =
     `선택한 조건을 바탕으로 <b>${mood.label}</b> 무드가 가장 적합해요. 이 무드 기준으로 팔레트·서체·레이아웃을 제안합니다.`;
-  $('#moodTitle').innerHTML = `#무드 추천 · ${mood.label}`;
+  $('#moodTitle').textContent = `#무드 추천 · ${mood.label}`;
   const mt = $('#moodTags'); mt.innerHTML='';
   mood.tags.forEach(t=>mt.insertAdjacentHTML('beforeend', `<span class="tag">${t}</span>`));
 
-  // 팔레트 + 제약/가독성 문구
+  // 팔레트 + 문구(직관)
   let pal = [...mood.colors];
   if(ban==='noNeon' && (moodKey==='pop'||moodKey==='tech')){ pal = pal.map((hex,i)=> i===1||i===2 ? '#64748b' : hex); }
   drawSwatches(pal);
@@ -524,16 +606,6 @@ function buildResult(){
   $('#contrastNote').textContent = label;
   $('#meter').style.width = Math.min(100,(ratio/7)*100)+'%';
 
-  // 카피 & CTA / 이미지 방향
-  const ctas = CTA_BY_GOAL[goal]||CTA_BY_GOAL.awareness;
-  $('#copyList').innerHTML = `
-    <li>카피 톤: <b>${$('#q_tone').selectedOptions[0].textContent}</b></li>
-    <li>권장 CTA: <b>${ctas[Math.floor(Math.random()*ctas.length)]}</b></li>
-    <li>메시지 결: <b>${goal==='conversion'?'직접/행동 지향':'정보/스토리 지향'}</b></li>
-  `;
-  const imgs = INDUSTRY_IMAGERY[industry] || [];
-  $('#imageList').innerHTML = imgs.map(x=>`<li>${x}</li>`).join('');
-
   // 타이포
   const [body, head, rule] = typoRecommend(audience, tone);
   $('#typoList').innerHTML = `
@@ -541,26 +613,26 @@ function buildResult(){
     <li>헤드라인: <b>${head}</b></li>
     <li>${rule}</li>
   `;
-  $('#typeAccess').textContent = (ratio>=7?'웹 접근성: 매우 우수': ratio>=4.5?'웹 접근성: 우수':'웹 접근성: 보통');
+  $('#typeAccess').textContent = label.replace('가독성','웹 접근성');
 
-  // 그리드
-  const grids = GRID_BY_PLATFORM[platform] || GRID_BY_PLATFORM.web;
-  $('#gridList').innerHTML = grids.map(g=>`<li>${g}</li>`).join('');
+  // 실무형 레이아웃 가이드 (그래픽 중심)
+  const guide = LAYOUT_GUIDE[platform] || LAYOUT_GUIDE.web;
+  $('#gridList').innerHTML = guide.map(g=>`<li>${g}</li>`).join('');
 
-  // 레이아웃 미리보기: 용도에 따라 비율 세트 조정
-  const rl = $('#ratioLine'); rl.innerHTML='';
+  // 레이아웃 미리보기
   const ratios = platform==='sns' ? ['1:1','4:5','16:9'] :
                  platform==='poster' ? ['4:5','1:1','16:9'] :
                  ['16:9','4:5','1:1'];
-  ratios.forEach(r=> rl.insertAdjacentHTML('beforeend', `<div class="ratio" data-r="${r}"><div class="inner"></div><label>${r}</label></div>`));
+  renderRatioPreview(ratios);
 
-  // 그래프
+  // 성향 그래프
   drawBars(moodKey, tone);
+
+  // 구성 비율 추천
+  drawCompositionBars(platform, goal, tone);
 }
 
-/* =========================
-   검증/네비게이션/모달
-========================= */
+/* ========================= 검증/네비/초기화/인쇄 ========================= */
 function validateAll(){
   const ids = ['#q_industry','#q_goal','#q_platform','#q_audience','#q_tone','#q_ban','#q_brand','#q_visual','#q_energy'];
   return ids.every(id => $(id).value !== '-');
@@ -569,6 +641,11 @@ const modal = $('#modal');
 function openModal(){ modal.style.display='grid'; }
 function closeModal(){ modal.style.display='none'; }
 
+function resetForm(){
+  ['q_industry','q_goal','q_platform','q_audience','q_tone','q_ban','q_brand','q_visual','q_energy']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value='-'; });
+}
+
 $('#goResult').onclick=()=>{
   if(!validateAll()){ openModal(); return; }
   buildResult();
@@ -576,11 +653,16 @@ $('#goResult').onclick=()=>{
   $('#screen-result').style.display='';
   window.scrollTo({top:0,behavior:'smooth'});
 };
+
 $('#back').onclick=()=>{
+  // 초기화 후 첫 화면으로
+  resetForm();
   $('#screen-result').style.display='none';
   $('#screen-ask').style.display='';
   window.scrollTo({top:0,behavior:'smooth'});
 };
+
+document.getElementById('print').onclick=()=>{ window.print(); };
 </script>
 </body>
 </html>
