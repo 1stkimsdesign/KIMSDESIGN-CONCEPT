@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🎁 디자인 컨셉 기획 생성기 | KIMSDESIGN</title>
+<meta name="description" content="목적·타겟·무드·톤앤매너를 입력하면 색채/타이포/그리드/메시지/CTA까지 자동으로 정리된 디자인 컨셉 기획서를 생성합니다.">
+<style>
+:root{
+  --bg:#ffffff; --fg:#0b0b0c; --muted:#6b7280; --line:#e5e7eb; --card:#f8fafc;
+  --accent:#2563eb; --ok:#16a34a; --bad:#ef4444;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:ui-sans-serif,system-ui,Apple SD Gothic Neo,Pretendard,Roboto,Helvetica,Arial;background:var(--bg);color:var(--fg)}
+header{position:sticky;top:0;background:#ffffffc0;backdrop-filter:saturate(1.05) blur(8px);border-bottom:1px solid var(--line);z-index:30}
+.wrap{max-width:1100px;margin:0 auto;padding:18px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:900}
+.badge{font-size:12px;color:#334155;border:1px solid var(--line);background:#eef2ff;padding:4px 10px;border-radius:999px}
+.grid{display:grid;gap:14px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+h2{margin:0 0 8px 0}
+h3{margin:0 0 8px 0}
+p{margin:6px 0}
+label{font-weight:600}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.select{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.small{font-size:12px;color:var(--muted)}
+.btn{padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(#fff,#f3f4f6);cursor:pointer}
+.btn.primary{background:linear-gradient(180deg,#93c5fd,#60a5fa);border-color:transparent;font-weight:800}
+.btn.ghost{background:#fff}
+.kbd{border:1px solid var(--line);padding:2px 6px;border-radius:6px;background:#fff}
+hr.sep{border:0;border-top:1px dashed var(--line);margin:12px 0}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width: 920px){ .col2{grid-template-columns:1fr} }
+
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips .chip{padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer}
+.chips .chip.active{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+.swatch{display:flex;gap:10px;flex-wrap:wrap}
+.swatch .c{width:78px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.swatch .c div{height:42px}
+.swatch .c span{display:block;padding:6px 6px 8px;font-size:11px;text-align:center;color:#334155;word-break:break-all}
+
+.preview{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.preview .hero{padding:20px;background:#fff}
+.preview .hero h1{margin:0;font-size:26px}
+.preview .hero p{color:var(--muted)}
+.preview .cta{display:inline-block;margin-top:10px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:#111;color:#fff}
+.preview .grid{grid-template-columns:repeat(3,1fr)}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#334155;font-size:12px}
+.code{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0b0b0c; color:#e5e7eb;border-radius:12px;padding:12px; border:1px solid #111}
+.notice{padding:10px;border:1px dashed var(--line);border-radius:12px;background:#fff}
+footer{margin:28px 0 10px;text-align:center;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap brand">
+    <div style="font-size:22px">🎁 디자인 컨셉 기획 생성기</div>
+    <span class="badge">목적→타겟→무드→톤→색채/타이포/그리드 자동 추천</span>
+  </div>
+</header>
+
+<div class="wrap grid">
+
+  <!-- 입력 섹션 -->
+  <section class="panel grid">
+    <h2>1) 기본 정보</h2>
+    <div class="col2">
+      <div>
+        <label>프로젝트명</label>
+        <input id="projName" class="input" placeholder="예) 더킴 유니버스 랜딩 페이지">
+      </div>
+      <div>
+        <label>산업군</label>
+        <select id="industry" class="select">
+          <option>테크/스타트업</option><option>교육</option><option>패션/뷰티</option>
+          <option>푸드/레스토랑</option><option>금융/핀테크</option><option>문화/전시</option>
+          <option>건강/헬스케어</option>
+        </select>
+      </div>
+    </div>
+    <div class="col2">
+      <div>
+        <label>목적</label>
+        <select id="purpose" class="select">
+          <option value="awareness">브랜드 인지도 향상</option>
+          <option value="conversion">전환/가입/다운로드</option>
+          <option value="education">교육/설명</option>
+          <option value="campaign">프로모션/캠페인</option>
+          <option value="info">정보 전달/소개</option>
+        </select>
+      </div>
+      <div>
+        <label>플랫폼</label>
+        <select id="platform" class="select">
+          <option value="web">웹/랜딩 페이지</option>
+          <option value="app">모바일 앱</option>
+          <option value="poster">포스터/인쇄</option>
+          <option value="sns">SNS 카드/배너</option>
+        </select>
+      </div>
+    </div>
+    <div class="col2">
+      <div>
+        <label>타겟(요약)</label>
+        <input id="audience" class="input" placeholder="예) 20-30대 얼리어답터, 실용적/미니멀 취향">
+      </div>
+      <div>
+        <label>핵심 메시지</label>
+        <input id="keyMsg" class="input" placeholder="예) 3분만에 전문가 포트폴리오 완성">
+      </div>
+    </div>
+    <div>
+      <label>핵심 키워드(쉼표 구분)</label>
+      <input id="keywords" class="input" placeholder="예) 모던, 신뢰, 직관적, 빠른, 확장성">
+    </div>
+  </section>
+
+  <section class="panel grid">
+    <h2>2) 무드 & 톤</h2>
+    <div>
+      <label>무드 선택</label>
+      <div id="moodChips" class="chips">
+        <!-- JS가 채움 -->
+      </div>
+      <div class="small">여러 개 선택 가능</div>
+    </div>
+    <div>
+      <label>톤앤매너</label>
+      <div id="toneChips" class="chips">
+        <!-- JS가 채움 -->
+      </div>
+    </div>
+  </section>
+
+  <section class="panel grid">
+    <h2>3) 색채/타이포/레이아웃 기본</h2>
+    <div class="col2">
+      <div>
+        <label>키 컬러</label>
+        <div class="row">
+          <input id="keyColor" type="color" value="#2563eb" class="input" style="width:120px;padding:4px">
+          <button class="btn" id="btnPal">기분에 맞게 팔레트 제안</button>
+          <button class="btn ghost" id="btnRand">랜덤</button>
+        </div>
+        <div class="swatch" id="swatches" style="margin-top:10px"></div>
+        <div id="contrastNote" class="small"></div>
+      </div>
+      <div>
+        <label>타이포 선호</label>
+        <div class="chips" id="typoChips"></div>
+        <div class="small">본문: 가독성 위주 · 헤드라인: 강조/개성</div>
+        <hr class="sep">
+        <label>레이아웃/그리드</label>
+        <div class="chips" id="gridChips"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel grid">
+    <h2>4) 제약 사항 (선택)</h2>
+    <div class="col2">
+      <div>
+        <label>금지 요소</label>
+        <input id="ban" class="input" placeholder="예) 네온 그라디언트, 과한 그림자, 라운드 모서리">
+      </div>
+      <div>
+        <label>접근성/운영 메모</label>
+        <input id="notes" class="input" placeholder="예) 명도 대비 4.5:1 이상, 모바일 우선, 레거시 브라우저 제외">
+      </div>
+    </div>
+  </section>
+
+  <section class="panel grid">
+    <div class="row" style="justify-content:space-between">
+      <div class="notice">입력 완료 후 <span class="kbd">생성하기</span>를 누르면 기획서가 생성돼요.</div>
+      <div class="row">
+        <button class="btn" onclick="resetAll()">초기화</button>
+        <button class="btn primary" onclick="generate()">생성하기 ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 결과 -->
+  <section id="outSec" class="panel grid" style="display:none">
+    <div class="row" style="justify-content:space-between">
+      <h2>🎯 생성된 디자인 컨셉 기획서</h2>
+      <div class="row">
+        <button class="btn" onclick="copyPlan()">복사</button>
+        <button class="btn" onclick="downloadMD()">Markdown 저장</button>
+        <button class="btn" onclick="window.print()">인쇄/PDF</button>
+      </div>
+    </div>
+
+    <div id="preview" class="preview">
+      <div class="hero" id="heroPrev">
+        <div class="tag" id="tagMood">#모던 #미니멀</div>
+        <h1 id="heroTitle">프로젝트 타이틀</h1>
+        <p id="heroLead">핵심 메시지 미리보기…</p>
+        <span class="cta" id="heroCTA">지금 시작하기</span>
+      </div>
+    </div>
+
+    <div id="plan" class="grid"></div>
+  </section>
+
+  <footer>※ 본 페이지는 김씨네디자인실의 자체 제작 도구로, 무단 복제 및 배포를 금합니다.</footer>
+</div>
+
+<script>
+/* =============================
+   데이터 맵 (무드/톤 → 팔레트/타이포/레이아웃 매핑)
+============================= */
+const MOODS = [
+  {id:'modern', label:'모더니즘', colors:['#111827','#2563eb','#e5e7eb','#0ea5e9','#f8fafc']},
+  {id:'retro', label:'레트로', colors:['#5b3a29','#eab308','#ef4444','#fde68a','#f3e8ff']},
+  {id:'brutal', label:'브루탈리즘', colors:['#000000','#22c55e','#facc15','#e11d48','#ffffff']},
+  {id:'minimal', label:'미니멀', colors:['#0f172a','#94a3b8','#f1f5f9','#334155','#e2e8f0']},
+  {id:'pop', label:'팝/캐주얼', colors:['#111827','#f43f5e','#fb923c','#22d3ee','#fef3c7']},
+  {id:'warm', label:'웜/휴먼', colors:['#1f2937','#d97706','#b45309','#fde68a','#fdf2f8']},
+  {id:'nature', label:'네이쳐', colors:['#0b3d2e','#16a34a','#8b5cf6','#84cc16','#f0fdf4']},
+  {id:'tech', label:'테크/사이버', colors:['#0b0b0c','#22d3ee','#60a5fa','#a78bfa','#111827']},
+];
+const TONES = ['세련된','친근한','대담한','따뜻한','신뢰감','혁신적','차분한','경쾌한'];
+
+const TYPO_PREFS = [
+  {id:'body-sans', label:'본문: 산세리프(가변폭/가독성)'},
+  {id:'body-serif', label:'본문: 세리프(서사/신뢰)'},
+  {id:'display-strong', label:'헤드라인: 굵게/콘덴스드'},
+  {id:'display-soft', label:'헤드라인: 둥글고 친근'},
+];
+const GRID_PREFS = [
+  {id:'grid-12', label:'12 컬럼 웹 그리드'},
+  {id:'grid-8', label:'8 컬럼 (데스크톱/포스터)'},
+  {id:'grid-modular', label:'모듈러 그리드 (카드/대시보드)'},
+  {id:'grid-baseline', label:'베이스라인 4/8pt 스케일'},
+];
+
+const TYPO_PAIRING = {
+  'body-sans+display-strong': {body:'Pretendard/Inter', head:'Bebas/Condensed Sans', lead:1.6},
+  'body-sans+display-soft': {body:'Pretendard/Inter', head:'Rounded Sans', lead:1.7},
+  'body-serif+display-strong': {body:'Noto Serif/Source Serif', head:'Strong Sans', lead:1.65},
+  'body-serif+display-soft': {body:'Noto Serif/Source Serif', head:'Rounded Sans', lead:1.7},
+};
+
+const INDUSTRY_IMAGERY = {
+  '테크/스타트업':['대시보드 인터페이스','등장 모션','모듈형 카드','코드/네트워크 메타포'],
+  '교육':['교재 질감','차트/도표','친근한 일러스트','학습 UI'],
+  '패션/뷰티':['룩북 크롭','질감 클로즈업','하이컨트라스트 조명','모노톤'],
+  '푸드/레스토랑':['식재료 클로즈업','따뜻한 조명','손글씨 악센트','메뉴 카드'],
+  '금융/핀테크':['신뢰 컬러','차분한 아이콘','데이터 시각화','케이스 스터디'],
+  '문화/전시':['포스터 타이포','그리드 실험','텍스처 레이어','대담한 여백'],
+  '건강/헬스케어':['청결한 화이트','부드러운 파스텔','인포그래픽','안정감 있는 사진']
+};
+
+const CTA_BY_PURPOSE = {
+  awareness:['더 알아보기','스토리 보러가기','제품 철학 보기'],
+  conversion:['지금 시작하기','무료로 체험','앱 다운로드'],
+  education:['가이드 읽기','튜토리얼 보기','샘플 확인'],
+  campaign:['이벤트 참여','혜택 받기','쿠폰 받기'],
+  info:['상세 정보','스펙 확인','고객 사례 보기']
+};
+
+/* =============================
+   유틸
+============================= */
+function $(sel){return document.querySelector(sel)}
+function el(tag,attrs={},html=''){ const e=document.createElement(tag); Object.assign(e,attrs); if(html) e.innerHTML=html; return e; }
+
+function hexToRgb(hex){hex=hex.replace('#',''); if(hex.length===3) hex=[hex[0],hex[0],hex[1],hex[1],hex[2],hex[2]].join(''); const num=parseInt(hex,16); return {r:(num>>16)&255,g:(num>>8)&255,b:num&255}}
+function luminance({r,g,b}){ // sRGB → lin
+  const srgb=[r/255,g/255,b/255].map(v=>v<=0.03928?v/12.92:((v+0.055)/1.055)**2.4);
+  return 0.2126*srgb[0]+0.7152*srgb[1]+0.0722*srgb[2];
+}
+function contrast(hex1,hex2){
+  const L1=luminance(hexToRgb(hex1)), L2=luminance(hexToRgb(hex2));
+  const [a,b]=L1>L2?[L1,L2]:[L2,L1];
+  return (a+0.05)/(b+0.05);
+}
+function clamp(n,min,max){return Math.min(max,Math.max(min,n))}
+function lighten(hex,amt){ // amt:-1~+1
+  const {r,g,b}=hexToRgb(hex); const f=(x)=>clamp(Math.round(x+(255-x)*amt),0,255);
+  const h=(n)=>n.toString(16).padStart(2,'0');
+  return '#'+h(f(r))+h(f(g))+h(f(b));
+}
+function download(filename, text){
+  const a=document.createElement('a'); a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(text); a.download=filename; a.click();
+}
+
+/* =============================
+   초기 UI 구성
+============================= */
+function buildChips(box, items){
+  items.forEach(idOrObj=>{
+    const id=typeof idOrObj==='string'?idOrObj:idOrObj.id;
+    const label=typeof idOrObj==='string'?idOrObj:idOrObj.label;
+    const chip=el('button',{className:'chip',type:'button',onclick(){chip.classList.toggle('active');}});
+    chip.textContent=label; chip.dataset.id=id;
+    box.appendChild(chip);
+  });
+}
+// 무드/톤/타이포/그리드
+buildChips($('#moodChips'), MOODS);
+buildChips($('#toneChips'), TONES);
+buildChips($('#typoChips'), TYPO_PREFS);
+buildChips($('#gridChips'), GRID_PREFS);
+
+// 기본 팔레트 노출
+function setSwatchesFromMood(){
+  const moodSel=[...$('#moodChips').querySelectorAll('.chip.active')].map(c=>c.dataset.id);
+  const mood = MOODS.find(m=>m.id=== (moodSel[0]||'modern')) || MOODS[0];
+  const key = $('#keyColor').value;
+  const pal=[key, ...mood.colors.filter(c=>c.toLowerCase()!==key.toLowerCase())].slice(0,5);
+  drawSwatches(pal);
+}
+function drawSwatches(pal){
+  const box=$('#swatches'); box.innerHTML='';
+  pal.forEach(hex=>{
+    const card=el('div',{className:'c'});
+    card.innerHTML=`<div style="background:${hex}"></div><span>${hex.toUpperCase()}</span>`;
+    box.appendChild(card);
+  });
+  // 대비 코멘트
+  const bg=pal[pal.length-1], text='#111111', contrastRatio=contrast(bg,text).toFixed(2);
+  $('#contrastNote').innerHTML=`<span class="tag">접근성</span> 본문 대비(예시) ${contrastRatio}:1 — WCAG AA 본문 기준 4.5:1 이상 권장`;
+}
+setSwatchesFromMood();
+
+// 팔레트 버튼
+$('#btnPal').onclick=setSwatchesFromMood;
+$('#btnRand').onclick=()=>{
+  $('#keyColor').value = '#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0');
+  setSwatchesFromMood();
+};
+
+/* =============================
+   생성 로직
+============================= */
+function getActiveIds(containerSel){
+  return [...$(containerSel).querySelectorAll('.chip.active')].map(c=>c.dataset.id);
+}
+function pairTypography(){
+  const t = getActiveIds('#typoChips');
+  const body = t.includes('body-serif') ? 'Noto Serif/Source Serif' : 'Pretendard/Inter';
+  const head =
+    t.includes('display-strong') ? (t.includes('body-serif') ? 'Strong Sans' : 'Bebas/Condensed Sans') :
+    t.includes('display-soft') ? 'Rounded Sans' : 'Strong Sans';
+  const key = (t.includes('body-serif')?'body-serif':'body-sans')+'+'+(t.includes('display-soft')?'display-soft':'display-strong');
+  const spec = TYPO_PAIRING[key] || {lead:1.65};
+  return {body, head, lead: spec.lead||1.65};
+}
+function chooseGrid(platform){
+  const picks = getActiveIds('#gridChips');
+  if(picks.length){ return picks.map(id=>GRID_PREFS.find(g=>g.id===id)?.label).filter(Boolean); }
+  if(platform==='web') return ['12 컬럼 웹 그리드','베이스라인 4/8pt'];
+  if(platform==='app') return ['모듈러 그리드','베이스라인 4/8pt'];
+  if(platform==='poster') return ['8 컬럼','모듈러 그리드'];
+  return ['12 컬럼','베이스라인 4/8pt'];
+}
+function toneToWords(toneList){
+  if(!toneList.length) return '세련된 · 신뢰감';
+  return toneList.join(' · ');
+}
+function buildPalette(){
+  const moodSel = getActiveIds('#moodChips');
+  const mood = MOODS.find(m=>m.id=== (moodSel[0]||'modern')) || MOODS[0];
+  const key = $('#keyColor').value;
+  // 기본: key + mood 파레트에서 4개
+  const pal = [key, ...mood.colors.filter(c=>c.toLowerCase()!==key.toLowerCase()).slice(0,4)];
+  return {moodLabel: mood.label, colors: pal};
+}
+function planMarkdown(data){
+  const {name, purposeLabel, platformLabel, audience, msg, moodLabel, tones, palette, typo, grid, industry, keywords, imagery, bans, notes, cta, tagline} = data;
+  const palList = palette.colors.map(c=>`- ${c}`).join('\n');
+  const gridList = grid.map(g=>`- ${g}`).join('\n');
+  const imgList = imagery.map(s=>`- ${s}`).join('\n');
+  return `# ${name}
+> 목적: **${purposeLabel}** · 플랫폼: **${platformLabel}** · 타겟: **${audience}**  
+> 톤앤매너: **${tones}** · 무드: **${moodLabel}**
+
+## 1. 전략 요약
+- 핵심 메시지: **${msg}**
+- 핵심 키워드: ${keywords}
+
+## 2. 비주얼 디렉션
+- 무드: **${moodLabel}**
+- 톤앤매너: **${tones}**
+- 색채 팔레트  
+${palList}
+
+## 3. 타이포그래피
+- 본문: ${typo.body}
+- 헤드라인: ${typo.head}
+- 권장 리딩(Line-height): ${typo.lead}
+
+## 4. 레이아웃/그리드
+${gridList}
+
+## 5. 카피/메시지
+- 제안 CTA: **${cta}**
+- 제안 태그라인: **${tagline}**
+
+## 6. 이미지/아이콘 방향 (${industry})
+${imgList}
+
+## 7. 제약/운영
+- 금지 요소: ${bans||'-'}
+- 접근성/운영 메모: ${notes||'-'}
+`;
+}
+
+/* CTA / 태그라인 간단 생성기 */
+function suggestCTA(purpose){ const arr = CTA_BY_PURPOSE[purpose]||CTA_BY_PURPOSE.info; return arr[Math.floor(Math.random()*arr.length)] }
+function makeTagline(keyMsg, tones){
+  const t = tones.length? tones[0] : '세련된';
+  const verbs = {세련된:'더 똑똑하게', 친근한:'쉽고 편하게', 대담한:'강렬하게', 따뜻한:'따스하게', 신뢰감:'안전하게', 혁신적:'새롭게', 차분한:'조용히', 경쾌한:'가볍게'};
+  return `${verbs[t]||'더 똑똑하게'} — ${keyMsg.replace(/[.!?]$/,'')}`;
+}
+
+function generate(){
+  const name = $('#projName').value || '무제 프로젝트';
+  const industry = $('#industry').value;
+  const purpose = $('#purpose').value;
+  const platform = $('#platform').value;
+  const purposeLabel = $('#purpose').selectedOptions[0].textContent;
+  const platformLabel = $('#platform').selectedOptions[0].textContent;
+  const audience = $('#audience').value || '일반 대중';
+  const msg = $('#keyMsg').value || '핵심 메시지를 여기에 입력';
+  const keywords = $('#keywords').value || '';
+  const tonesSel = getActiveIds('#toneChips').map(id=>id);
+  const tones = toneToWords(tonesSel);
+  const palette = buildPalette();
+  const typo = pairTypography();
+  const grid = chooseGrid(platform);
+  const imagery = INDUSTRY_IMAGERY[industry] || [];
+  const bans = $('#ban').value;
+  const notes = $('#notes').value;
+  const cta = suggestCTA(purpose);
+  const tagline = makeTagline(msg, tonesSel);
+
+  // 프리뷰 업데이트
+  $('#heroTitle').textContent = name;
+  $('#heroLead').textContent = msg;
+  $('#heroCTA').textContent = cta;
+  $('#tagMood').textContent = `#${palette.moodLabel} · ${tones}`;
+  const heroBg = palette.colors[palette.colors.length-1];
+  const heroText = contrast(heroBg,'#111111')>=4.5 ? '#111' : '#fff';
+  $('#heroPrev').style.background = heroBg;
+  $('#heroPrev').style.color = heroText;
+  $('#heroPrev').querySelector('.cta').style.background = palette.colors[0];
+
+  // 팔레트 다시 그림
+  drawSwatches(palette.colors);
+
+  // 기획서 본문
+  const md = planMarkdown({name, purposeLabel, platformLabel, audience, msg, moodLabel: palette.moodLabel, tones, palette, typo, grid, industry, keywords, imagery, bans, notes, cta, tagline});
+  const html = `
+    <h3>개요</h3>
+    <div class="notice">프로젝트: <b>${name}</b> · 목적: <b>${purposeLabel}</b> · 플랫폼: <b>${platformLabel}</b> · 타겟: <b>${audience}</b></div>
+    <h3>전략 요약</h3>
+    <ul>
+      <li>핵심 메시지: <b>${msg}</b></li>
+      <li>핵심 키워드: ${keywords||'-'}</li>
+      <li>톤앤매너: ${tones}</li>
+    </ul>
+    <h3>색채 팔레트</h3>
+    <div class="swatch">${palette.colors.map(c=>`<div class="c"><div style="background:${c}"></div><span>${c.toUpperCase()}</span></div>`).join('')}</div>
+    <div class="small">배경 대비 권장사항: 본문 텍스트 대비 4.5:1 이상 유지</div>
+    <h3>타이포그래피</h3>
+    <ul>
+      <li>본문 서체: ${typo.body}</li>
+      <li>헤드라인 서체: ${typo.head}</li>
+      <li>권장 리딩(Line-height): ${typo.lead}</li>
+    </ul>
+    <h3>레이아웃/그리드</h3>
+    <ul>${grid.map(g=>`<li>${g}</li>`).join('')}</ul>
+    <h3>카피/메시지</h3>
+    <ul>
+      <li>CTA 제안: <b>${cta}</b></li>
+      <li>태그라인 제안: <b>${tagline}</b></li>
+    </ul>
+    <h3>이미지/아이콘 방향 (${industry})</h3>
+    <ul>${(imagery||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
+    <h3>제약/운영</h3>
+    <ul>
+      <li>금지 요소: ${bans||'-'}</li>
+      <li>접근성/운영 메모: ${notes||'-'}</li>
+    </ul>
+    <h3>인도물 체크리스트</h3>
+    <ul>
+      <li>스타일 가이드: 키 컬러/타이포 체계/그리드 규격</li>
+      <li>웹/앱: 컴포넌트 샘플(버튼/폼/카드/헤더/푸터)</li>
+      <li>배너/SNS: 기본 템플릿 3종(정사각/세로/가로)</li>
+      <li>소스: 벡터 로고, 아이콘 SVG, 이미지 라이선스 표기</li>
+    </ul>
+    <h3>원문(복사/저장용 Markdown)</h3>
+    <div class="code" id="mdBlock"></div>
+  `;
+
+  $('#plan').innerHTML = html;
+  $('#mdBlock').textContent = md;
+  $('#outSec').style.display='';
+  window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'});
+}
+
+/* 액션 */
+function copyPlan(){
+  const txt = $('#mdBlock').textContent;
+  navigator.clipboard.writeText(txt).then(()=>{ alert('기획서(Markdown)가 복사되었습니다.'); });
+}
+function downloadMD(){
+  const name = ($('#projName').value||'plan').replace(/[\\/:*?"<>|]/g,'-');
+  const txt = $('#mdBlock').textContent;
+  download(`${name}-concept.md`, txt);
+}
+function resetAll(){
+  document.querySelectorAll('input,select').forEach(el=>{
+    if(el.type==='color') el.value='#2563eb';
+    else if(el.tagName==='SELECT') el.selectedIndex=0;
+    else el.value='';
+  });
+  document.querySelectorAll('.chip.active').forEach(c=>c.classList.remove('active'));
+  setSwatchesFromMood();
+  $('#outSec').style.display='none';
+}
+</script>
+</body>
+</html>
