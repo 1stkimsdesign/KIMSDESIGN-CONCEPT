@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>🎁 디자인 컨셉 기획 생성기</title>
-<meta name="description" content="산업군/목적/용도/타겟/톤/제약/브랜드/이미지/에너지 선택 → 무드/컬러/서체/레이아웃/페르소나 자동 추천">
+<meta name="description" content="산업/목적/용도/타겟/톤/제약/브랜드/이미지/에너지 + 페르소나 → 무드/컬러/서체/레이아웃/구성비율/페르소나 자동 생성">
 <style>
   :root{
     --bg:#fff; --fg:#0b0b0c; --muted:#6b7280; --line:#e5e7eb; --card:#f8fafc;
@@ -21,10 +21,17 @@
   .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
   h1,h2,h3{margin:0 0 8px 0}
   p{margin:6px 0}
-  select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  select, input{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .btn{padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(#fff,#f3f4f6);cursor:pointer}
-  .btn.primary{background:linear-gradient(180deg,#93c5fd,#60a5fa);border-color:transparent;font-weight:800}
+  .btn.primary{
+    border:none;
+    background:linear-gradient(90deg,#60a5fa,#34d399);
+    color:#0b0b0c; font-weight:900;
+    box-shadow:0 6px 20px rgba(52,211,153,.25);
+  }
+  .btn.toggle{background:#fff;border:1px solid var(--line);font-weight:700}
+  .btn.toggle.active{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.25)}
   .small{font-size:12px;color:var(--muted)}
   .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
   .card>:last-child{margin-bottom:0}
@@ -39,11 +46,9 @@
 
   .resultGrid{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
   @media (max-width: 980px){ .resultGrid{grid-template-columns:1fr} }
-  .meter{height:12px;background:#f1f5f9;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
-  .meter>i{display:block;height:100%;background:#22c55e}
 
   .bars{display:grid;gap:8px}
-  .barRow{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center}
+  .barRow{display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:center}
   .bar{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden}
   .bar>i{display:block;height:100%;background:linear-gradient(90deg,#60a5fa,#22d3ee)}
 
@@ -56,11 +61,11 @@
   .moodTitle{font-size:20px;font-weight:900;margin-bottom:6px}
   .moodTags{display:flex;gap:8px;flex-wrap:wrap}
 
-  /* 컴팩트 텍스트 */
+  /* 컴팩트 텍스트 카드 */
   .compact ul{font-size:13px; line-height:1.6; margin:6px 0 0 18px}
   .compact p, .compact .small{font-size:12px}
 
-  /* 레이아웃 비율 미리보기(정확 비율 + 추천 표기) */
+  /* 레이아웃 비율 추천(정확 비율 + 추천 강조) */
   .previewLine{display:flex;gap:12px;align-items:center;flex-wrap:nowrap;overflow-x:auto}
   .ratio{
     flex:0 0 auto; width:108px; height:72px; border:1px solid var(--line); border-radius:12px;
@@ -75,7 +80,15 @@
 
   /* 모달 */
   .modal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.35); z-index:50}
-  .modal .box{background:#fff; border-radius:14px; padding:16px 18px; width:min(360px,92vw); box-shadow:0 10px 30px rgba(0,0,0,.2)}
+  .modal .box{background:#fff; border-radius:14px; padding:16px 18px; width:min(380px,92vw); box-shadow:0 10px 30px rgba(0,0,0,.2)}
+
+  /* 로딩 오버레이 */
+  .loading{position:fixed; inset:0; display:none; place-items:center; background:rgba(255,255,255,.9); z-index:60}
+  .spinner{
+    width:52px; height:52px; border:6px solid #e5e7eb; border-top-color:#60a5fa; border-radius:50%;
+    animation:spin 1s linear infinite; margin:0 auto 12px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
 
   @media print{
     header{position:static; background:#fff}
@@ -88,20 +101,21 @@
 <header>
   <div class="wrap brand">
     <div style="font-size:22px">🎁 디자인 컨셉 기획 생성기</div>
-    <span class="badge">드롭다운 9문항 → 무드/컬러/서체/레이아웃/페르소나 자동 추천</span>
+    <span class="badge">드롭다운 9문항 + 페르소나 → 무드·컬러·서체·레이아웃·구성비율 자동 추천</span>
   </div>
 </header>
 
 <div class="wrap grid">
 
-  <!-- STEP 1 -->
+  <!-- ============ STEP 1: 질문 ============ -->
   <section id="screen-ask" class="panel grid">
     <div class="row" style="justify-content:space-between">
-      <h2>1) 질문에 답해 주세요 (9문항)</h2>
+      <h2>1) 질문에 답해 주세요 (9문항 + 페르소나)</h2>
       <div class="tag">모든 항목은 필수입니다</div>
     </div>
 
     <div class="col3">
+      <!-- 1~9 드롭다운 -->
       <div class="card"><h3>① 산업군</h3>
         <select id="q_industry">
           <option value="-">-</option>
@@ -158,7 +172,7 @@
           <option value="-">-</option>
           <option value="none">없음</option>
           <option value="noNeon">네온/강한 그라디언트 금지</option>
-          <option value="hiDensity">한 화면에 과밀 배치 금지</option>
+          <option value="hiDensity">한 화면 과밀 배치 금지</option>
           <option value="brandStrict">브랜드 가이드 엄수(색/로고 변형 금지)</option>
           <option value="noStocky">과도한 스톡사진 느낌 금지</option>
         </select><p class="small">팔레트/이미지/텍스트 밀도 제약</p>
@@ -190,14 +204,46 @@
           <option value="dynamic">역동/활기</option>
         </select><p class="small">대담함·색채 강도</p>
       </div>
+
+      <!-- ⑩ 페르소나 선택/입력 -->
+      <div class="card">
+        <h3>⑩ 페르소나</h3>
+        <div class="row">
+          <button type="button" class="btn toggle" id="btnAuto">자동 페르소나</button>
+          <button type="button" class="btn toggle" id="btnManual">수동 페르소나</button>
+        </div>
+        <div id="ps_form" style="display:none; margin-top:10px">
+          <div class="row" style="gap:10px">
+            <input id="ps_name" placeholder="이름(가명)" />
+            <select id="ps_age" style="max-width:220px">
+              <option value="">연령대</option>
+              <option>18–24</option><option>25–34</option><option>35–44</option><option>45–54</option>
+            </select>
+          </div>
+          <input id="ps_role" placeholder="직무(예: 프로덕트 마케터)" style="margin-top:8px" />
+          <input id="ps_channels" placeholder="주요 채널(쉼표: 인스타그램, 유튜브…)" style="margin-top:8px" />
+          <div class="row" style="gap:10px; margin-top:8px">
+            <select id="ps_style">
+              <option value="">선호 스타일</option>
+              <option value="정제/명료">정제/명료</option>
+              <option value="밝고 친근">밝고 친근</option>
+              <option value="대담/강조">대담/강조</option>
+              <option value="따뜻/휴먼">따뜻/휴먼</option>
+            </select>
+            <input id="ps_goal" placeholder="목표(예: 전환율 향상, 인지도…)" />
+          </div>
+          <input id="ps_pain" placeholder="Pain Point(예: 첫 장 이탈, 가치전달 지연…)" style="margin-top:8px" />
+        </div>
+        <p class="small" style="margin-top:8px">※ 수동 입력은 점수에 영향 없이 결과지에 그대로 반영됩니다.</p>
+      </div>
     </div>
 
     <div class="row" style="justify-content:flex-end">
-      <button class="btn primary" id="goResult">기획 생성 ▶</button>
+      <button class="btn primary" id="goResult">🚀 기획 생성</button>
     </div>
   </section>
 
-  <!-- STEP 2 -->
+  <!-- ============ STEP 2: 결과 ============ -->
   <section id="screen-result" class="panel grid" style="display:none">
     <div class="row" style="justify-content:space-between">
       <h2>🎯 컨셉 보드</h2>
@@ -208,7 +254,7 @@
     </div>
 
     <div class="resultGrid">
-      <!-- 왼쪽 -->
+      <!-- 왼쪽 컬럼 -->
       <div class="grid" style="gap:14px">
         <div class="card" id="summaryCard">
           <h3>📌 요약</h3>
@@ -221,15 +267,14 @@
             <span class="tag" id="tagBan">#제약</span>
           </div>
           <p class="small" id="summaryText" style="margin-top:8px"></p>
-
-          <!-- 무드(강조) -->
+          <!-- 무드 강조 -->
           <div class="moodBox">
             <div class="moodTitle" id="moodTitle">무드 자동 판정</div>
             <div class="moodTags" id="moodTags"></div>
           </div>
         </div>
 
-        <!-- NEW: 핵심 페르소나 -->
+        <!-- 페르소나 (세분화) -->
         <div class="card" id="personaCard">
           <h3>🧑‍🎨 핵심 페르소나</h3>
           <div class="row" id="personaHeader" style="gap:8px;margin-top:4px"></div>
@@ -237,17 +282,18 @@
           <div class="small" id="personaImp" style="margin-top:8px"></div>
         </div>
 
+        <!-- 컬러 -->
         <div class="card">
           <h3>🎨 컬러 팔레트</h3>
           <div class="swatch" id="swatches" style="margin-top:6px"></div>
           <div class="row" style="gap:10px;margin-top:10px">
             <div class="tag" id="contrastNote">가독성: -</div>
-            <div class="meter" style="flex:1 1 200px"><i id="meter" style="width:0%"></i></div>
+            <div class="bar" style="flex:1 1 200px;height:14px"><i id="meter" style="width:0%;height:100%;background:linear-gradient(90deg,#fca5a5,#60a5fa)"></i></div>
           </div>
         </div>
       </div>
 
-      <!-- 오른쪽 -->
+      <!-- 오른쪽 컬럼 -->
       <div class="grid" style="gap:14px">
         <div class="card compact">
           <h3>🔡 타이포그래피</h3>
@@ -262,8 +308,14 @@
           <div class="previewLine" id="ratioLine"></div>
         </div>
 
+        <!-- 복구: 구성 비율 그래프 -->
         <div class="card">
-          <h3>📊 컨셉 성향 그래프</h3>
+          <h3>📊 구성 비율(이미지/텍스트/여백/CTA)</h3>
+          <div class="bars" id="compBars" style="margin-top:8px"></div>
+        </div>
+
+        <div class="card">
+          <h3>📈 컨셉 성향 그래프</h3>
           <div class="bars" id="barBox" style="margin-top:8px"></div>
         </div>
       </div>
@@ -273,19 +325,41 @@
   <footer>※ 김씨네디자인실 자체 제작 콘텐츠 — 무단 복제 및 배포 금지</footer>
 </div>
 
-<!-- 모달 -->
-<div class="modal" id="modal">
+<!-- 모달: 필수 체크 -->
+<div class="modal" id="modalRequire">
   <div class="box">
     <h3 style="margin:0 0 8px 0">체크 필요</h3>
     <p style="margin:0 0 10px 0">모든 항목을 선택해 주세요.</p>
     <div class="row" style="justify-content:flex-end">
-      <button class="btn" onclick="closeModal()">확인</button>
+      <button class="btn" onclick="closeModal('modalRequire')">확인</button>
     </div>
   </div>
 </div>
 
+<!-- 모달: 자동 페르소나 알림 -->
+<div class="modal" id="modalAuto">
+  <div class="box">
+    <h3 style="margin:0 0 8px 0">자동 페르소나</h3>
+    <p style="margin:0 0 10px 0">자동 페르소나가 적용되어 컨셉 보드에 노출됩니다.</p>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn" onclick="closeModal('modalAuto')">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 로딩 오버레이 -->
+<div class="loading" id="loading">
+  <div>
+    <div class="spinner"></div>
+    <div style="text-align:center;font-weight:800">컨셉 보드를 생성 중입니다…</div>
+  </div>
+</div>
+
 <script>
-/* ========================= 데이터: 무드 / 팔레트 ========================= */
+/* ---------- 유틸 ---------- */
+const $ = s => document.querySelector(s);
+
+/* ---------- 데이터: 무드 ---------- */
 const MOOD_INFO = {
   modern:{label:'모더니즘 🧩', colors:['#111827','#2563eb','#e5e7eb','#0ea5e9','#f8fafc'], tags:['질서','보편성','절제']},
   minimal:{label:'미니멀 🌫️', colors:['#0f172a','#94a3b8','#f1f5f9','#334155','#e2e8f0'], tags:['여백','정돈','차분']},
@@ -294,7 +368,6 @@ const MOOD_INFO = {
   pop:{label:'팝/캐주얼 🎉', colors:['#111827','#f43f5e','#fb923c','#22d3ee','#fef3c7'], tags:['발랄','친근','비비드']},
   tech:{label:'테크/사이버 💾', colors:['#0b0b0c','#22d3ee','#60a5fa','#a78bfa','#111827'], tags:['네온','클린','디지털']},
   warm:{label:'웜/휴먼 ☕', colors:['#1f2937','#d97706','#b45309','#fde68a','#fdf2f8'], tags:['따뜻','휴먼','신뢰']},
-  // 추가 확장 무드 (10+)
   organic:{label:'오가닉 🌿', colors:['#0b3d2e','#34d399','#b5e0d3','#fefce8','#f1f5f9'], tags:['자연','소프트','친환경']},
   luxury:{label:'럭셔리 💎', colors:['#0b0b0c','#a78bfa','#d4af37','#f1f5f9','#1f2937'], tags:['프리미엄','세련','절제된 광택']},
   y2k:{label:'Y2K ✨', colors:['#0b0b0c','#a78bfa','#22d3ee','#f472b6','#ffffff'], tags:['네온','글로시','미래지향']},
@@ -303,34 +376,34 @@ const MOOD_INFO = {
   cozy:{label:'코지 ☕️', colors:['#1f2937','#d97706','#a3a3a3','#fde68a','#fdf2f8'], tags:['따뜻','빈티지','부드러움']}
 };
 
+/* ---------- 가이드/타이포 ---------- */
 const LAYOUT_GUIDE = {
   web:[
-    '히어로 섹션: 핵심 문구 5–8단어 + 주요 CTA 1개',
-    '텍스트 라인 길이 45–75자 / 섹션 간 간격 48–72px',
-    '리드 문단 16–18px, 카드형 리스트로 정보 덩어리화',
-    '폼/다운로드는 1차 CTA와 그룹화(시선 동선 정렬)'
+    '히어로: 핵심 문구 5–8단어 + CTA 1개',
+    '라인 길이 45–75자 / 섹션 간 48–72px',
+    '리드 16–18px, 카드형 리스트로 덩어리화',
+    '폼/다운로드는 1차 CTA와 그룹화'
   ],
   app:[
-    '컴포넌트 반복(카드/리스트/버튼)로 리듬 유지, 터치 타겟 최소 44px',
-    '상·하단 네비게이션 중심으로 우선 흐름 설계',
-    '본문 15–17px / 인터랙션 상태 명료화',
-    '모달/시트는 1회성 정보만 — 중첩 최소화'
+    '컴포넌트 반복(카드/리스트/버튼)로 리듬 유지, 터치 최소 44px',
+    '상·하단 네비 중심 흐름, 중첩 모달 최소화',
+    '본문 15–17px / 상태 피드백 명료화',
+    '키 액션은 하단 고정 CTA'
   ],
   sns:[
-    '카드뉴스: 슬라이드 20–40자 / 10장 기준 1–2개 메시지',
-    '텍스트:이미지 6:4~4:6 / 첫 장은 썸네일(키비주얼)',
-    '단일 템플릿(타이틀/바디/출처)로 일관성 유지',
-    '세이프 존(가장자리 60px) 확보 / 번호·진행바 제공'
+    '슬라이드 20–40자 / 10장 기준 1–2 메시지',
+    '텍스트:이미지 6:4~4:6 / 첫 장은 썸네일',
+    '템플릿(타이틀/바디/출처) 통일',
+    '세이프 존 60px / 번호·진행바 제공'
   ],
   poster:[
-    '키 메시지 5–7단어 / 보조 정보 계층화(장소/일시/문의)',
-    'QR/URL 대비 확보(스캔 거리 고려) / 미세 여백으로 시선 유도',
-    '원거리·근거리 시나리오 분리(멀리선 제목, 가까이선 상세)',
-    '인쇄 여분 3mm / 이미지 해상도 200–300ppi'
+    '키 메시지 5–7단어 / 정보 계층화(장소·일시·문의)',
+    '원거리·근거리 시나리오 분리',
+    'QR/URL 대비 확보 / 미세 여백 유도',
+    '인쇄 여분 3mm / 이미지 200–300ppi'
   ]
 };
 
-/* ========================= 타이포 후보 (확장) ========================= */
 const TYPO_POOL = {
   body: [
     'Pretendard','Noto Sans KR','Inter','Roboto','Source Sans 3','Open Sans',
@@ -344,174 +417,29 @@ const TYPO_POOL = {
   ]
 };
 
-/* ========================= 페르소나 생성 ========================= */
-function buildPersona({industry,audience,platform,tone,brand,goal,visual,energy,moodKey}){
-  // 이름/연령/직무 템플릿
-  const names = ['김하늘','박민수','이서윤','정우진','최다은','오지후','강수민','유민서','윤도현','한가은'];
-  const seed = Math.floor(Math.random()*names.length);
-  const name = names[seed];
-
-  const ageMap = {youth:'22–26', gen:'27–34', adult:'30–45', pro:'28–42', premium:'32–48'};
-  const roleMap = {
-    tech:'프로덕트 마케터', fashion:'브랜드 MD', food:'매장/프랜차이즈 마케터',
-    finance:'디지털 마케터', culture:'전시 기획자', edu:'교육 콘텐츠 기획자',
-    sports:'스폰서십 매니저', travel:'투어 기획자', auto:'모빌리티 PM',
-    game:'게임 커뮤니티 매니저', estate:'분양 마케터', health:'헬스케어 교육 매니저',
-    home:'리빙 MD', music:'레이블 프로모터', ngo:'캠페인 매니저'
-  };
-  const role = roleMap[industry] || '마케팅 실무자';
-  const age = ageMap[audience] || '28–38';
-
-  // 채널/행동
-  const channels = (platform==='sns')? ['인스타그램','틱톡','유튜브 쇼츠'] :
-                  (platform==='web'||platform==='app')? ['검색','유튜브','브런치'] : ['현수막','지역 커뮤니티','인스타그램'];
-
-  // 선호 스타일
-  const style = {
-    trust:'정제·균형·명료 카피', friendly:'밝고 친근한 시각 요소',
-    bold:'대조 강한 헤드라인·선명 팔레트', warm:'뉴트럴톤·사람/현장 중심'
-  }[tone];
-
-  // 목표/고민
-  const obj = {
-    conversion:'짧은 여정에서 전환율 극대화',
-    awareness:'브랜드 인지도와 일관된 톤 구축',
-    education:'핵심 정보의 빠른 이해',
-    campaign:'이벤트 참여/도달 극대화'
-  }[goal];
-
-  const pain = (platform==='sns')? '썸네일/첫 장에서 3초 내 관심 유도 실패'
-             :(platform==='web')? '첫 화면 히어로에서 가치 전달 지연'
-             :(platform==='poster')? '거리/근접 관람 시나리오 미분리'
-             :'탭/리스트 정보 구조 난해';
-
-  // 페르소나 카드 구성 텍스트
-  const headerTags = [
-    `👤 ${name} (${age})`, `직무: ${role}`, `채널: ${channels.join('·')}`
-  ];
-  const bullets = [
-    `디자인 선호: ${style}`,
-    `무드 적합: ${MOOD_INFO[moodKey].label.replace(/ .*/,'')}`,
-    `이미지 선호: ${(visual==='photo')?'현장/제품 사진':'일러스트/아이콘 위주'}`,
-    `에너지 레벨: ${energy==='dynamic'?'역동적':'차분/균형'}`
-  ];
-  const implication =
-    `디자인 임플리케이션 — 헤드라인은 ${tone==='bold'?'압축적·강조형':'명료·간결형'}으로,
-     비주얼은 ${visual==='photo'?'사진 중심(사실성 강화)':'아이콘/일러스트로 개념 명확화'},
-     레이아웃은 ${platform==='sns'?'시리즈 템플릿':'섹션 정보 구획'}을 유지하여
-     <b>${obj}</b>을(를) 달성하도록 설계합니다.`;
-
-  return {headerTags, bullets, implication};
-}
-
-/* ========================= 타이포 추천 ========================= */
-function typoRecommend(audience, tone){
-  // 가중치로 다양화
-  const pick = (arr, bias=0)=>arr[(Math.floor(Math.random()*arr.length)+bias)%arr.length];
-  let body = 'Pretendard', head = 'Montserrat';
-
-  if(audience==='premium'){ body = pick(['Noto Serif KR','Cormorant Garamond','Source Serif 4','Lora','DM Serif Text'],1);
-                            head = pick(['Playfair Display','DM Serif Display','Cinzel','Noto Serif KR','Cabinet Grotesk'],2); }
-  else if(audience==='pro' || tone==='trust'){ body = pick(['Inter','Source Sans 3','IBM Plex Sans KR','SUIT','Open Sans','Roboto'],1);
-                                               head = pick(['Poppins','Raleway','Pretendard Black','Archivo Black','Montserrat'],1); }
-  else if(tone==='friendly'){ body = pick(['Spoqa Han Sans Neo','Gmarket Sans','Nanum Gothic','SUIT','Lato'],1);
-                              head = pick(['Poppins','Rounded Mplus','Noto Sans KR Bold','Pretendard Black','Montserrat']); }
-  else if(tone==='bold'){ body = pick(['Inter','SUIT','Pretendard','Gmarket Sans','IBM Plex Sans KR'],2);
-                          head = pick(['Oswald','Bebas Neue','Pretendard Black','Archivo Black','Montserrat'],2); }
-  else if(tone==='warm'){ body = pick(['Noto Sans KR','Apple SD Gothic Neo','Nanum Gothic','Harmonia Sans'],1);
-                          head = pick(['Noto Serif KR','Playfair Display','Lora','DM Serif Display','Raleway']); }
-  else { body = pick(TYPO_POOL.body); head = pick(TYPO_POOL.head); }
-
-  const guide = '리딩 1.6–1.8 / 트래킹 0~+2 / 커닝은 제목 글자쌍 수동 보정';
-  return [body+' (가독성 16–18px)', head+' (강조/헤드라인)', guide];
-}
-
-/* ========================= 성향 그래프 ========================= */
-function drawBars(moodKey, tone){
-  const dims = [
-    {key:'aesth', label:'심미성'}, {key:'read', label:'가독성'},
-    {key:'bold', label:'대담함'}, {key:'access', label:'편의성'},
-    {key:'trend', label:'트렌드성'}
-  ];
-  const base = {
-    modern:{aesth:80, read:85, bold:55, access:80, trend:70},
-    minimal:{aesth:78, read:88, bold:40, access:85, trend:65},
-    retro:{aesth:75, read:72, bold:60, access:70, trend:60},
-    brutal:{aesth:68, read:60, bold:90, access:55, trend:75},
-    pop:{aesth:72, read:70, bold:78, access:65, trend:82},
-    tech:{aesth:74, read:76, bold:65, access:72, trend:85},
-    warm:{aesth:78, read:78, bold:50, access:80, trend:62},
-    organic:{aesth:76, read:80, bold:42, access:82, trend:60},
-    luxury:{aesth:86, read:80, bold:55, access:78, trend:75},
-    y2k:{aesth:70, read:64, bold:82, access:58, trend:88},
-    classic:{aesth:82, read:82, bold:48, access:80, trend:66},
-    sporty:{aesth:72, read:72, bold:78, access:66, trend:78},
-    cozy:{aesth:76, read:80, bold:46, access:82, trend:63}
-  };
-  const toneAdj = (k)=>({
-    trust:{read:+6, access:+6, bold:-6, trend:-2}[k]||0,
-    friendly:{read:+2, access:+2, aesth:+2, bold:-2}[k]||0,
-    bold:{bold:+10, read:-4, access:-4, trend:+4}[k]||0,
-    warm:{aesth:+3, read:+3, access:+3, trend:-2}[k]||0
-  }[tone]||0);
-
-  const prof = base[moodKey] || base.modern;
-  const box = document.getElementById('barBox'); box.innerHTML='';
-  dims.forEach(d=>{
-    const v = Math.max(0, Math.min(100, (prof[d.key]||70)+(toneAdj(d.key)||0)));
-    box.insertAdjacentHTML('beforeend',
-      `<div class="barRow"><div class="small">${d.label}</div><div class="bar"><i style="width:${v}%"></i></div></div>`
-    );
-  });
-}
-
-/* ========================= 팔레트/대비 ========================= */
-const $=s=>document.querySelector(s);
+/* ---------- 색 대비 유틸 ---------- */
 function hexToRgb(hex){hex=hex.replace('#',''); if(hex.length===3) hex=[hex[0],hex[0],hex[1],hex[1],hex[2],hex[2]].join(''); const num=parseInt(hex,16); return {r:(num>>16)&255,g:(num>>8)&255,b:num&255}}
 function luminance({r,g,b}){const s=[r/255,g/255,b/255].map(v=>v<=0.03928?v/12.92:((v+0.055)/1.055)**2.4);return 0.2126*s[0]+0.7152*s[1]+0.0722*s[2]}
 function contrast(hex1,hex2){const L1=luminance(hexToRgb(hex1)),L2=luminance(hexToRgb(hex2));const[a,b]=L1>L2?[L1,L2]:[L2,L1];return (a+0.05)/(b+0.05)}
-function drawSwatches(pal){ const box=$('#swatches'); box.innerHTML=''; pal.forEach(c=>{box.insertAdjacentHTML('beforeend',`<div class="c"><div style="background:${c}"></div><span>${c.toUpperCase()}</span></div>`);}); }
 
-/* ========================= 레이아웃 비율(정확/추천) ========================= */
-function renderRatioPreview(ratios, activeSet=new Set()){
-  const line = $('#ratioLine'); line.innerHTML='';
-  ratios.forEach(r=>{
-    const el = document.createElement('div'); el.className='ratio'; el.dataset.ratio=r;
-    if(activeSet.has(r)) el.classList.add('active');
-    const inner = document.createElement('div'); inner.className='inner';
-    const lab = document.createElement('label'); lab.textContent = r;
-    el.appendChild(inner); el.appendChild(lab); line.appendChild(el);
-  });
-
-  // 프레임 크기에 맞춰 내부 사각형을 정확 비율로 센터링 (w/h가 0인 경우 대비값 사용)
-  const frames = line.querySelectorAll('.ratio');
-  frames.forEach(box=>{
-    let w = box.clientWidth-16, h = box.clientHeight-16;
-    if(w<=0||h<=0){ w=92; h=56; } // 일부 브라우저에서 레이아웃 전 0 나오는 이슈 방지
-    const [a,b] = box.dataset.ratio.split(':').map(Number);
-    let iw = w, ih = iw*(b/a);
-    if(ih>h){ ih=h; iw=ih*(a/b); }
-    const inner = box.querySelector('.inner');
-    inner.style.width = iw+'px';
-    inner.style.height = ih+'px';
-    inner.style.left = ((w-iw)/2 + 8)+'px';
-    inner.style.top  = ((h-ih)/2 + 8)+'px';
-  });
+/* ---------- 검증/모달 ---------- */
+const modalRequire = $('#modalRequire');
+const modalAuto = $('#modalAuto');
+function openModal(id){ document.getElementById(id).style.display='grid'; }
+function closeModal(id){ document.getElementById(id).style.display='none'; }
+function validateAll(){
+  const ids=['#q_industry','#q_goal','#q_platform','#q_audience','#q_tone','#q_ban','#q_brand','#q_visual','#q_energy'];
+  return ids.every(id => $(id).value !== '-');
+}
+function resetForm(){
+  ['q_industry','q_goal','q_platform','q_audience','q_tone','q_ban','q_brand','q_visual','q_energy']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value='-'; });
+  // persona toggle reset
+  btnAuto.classList.remove('active'); btnManual.classList.remove('active');
+  ps_form.style.display='none'; personaMode='auto';
 }
 
-// 추천 비율 선정
-function recommendRatios(platform, goal, tone){
-  const score = {'1:1':0,'4:5':0,'16:9':0};
-  if(platform==='sns'){ score['1:1']+=3; score['4:5']+=3; score['16:9']+=1; }
-  if(platform==='poster'){ score['4:5']+=4; score['1:1']+=2; score['16:9']+=1; }
-  if(platform==='web'||platform==='app'){ score['16:9']+=4; score['4:5']+=2; score['1:1']+=1; }
-  if(goal==='campaign'){ score['4:5']+=1; score['16:9']+=1; }
-  if(tone==='bold'){ Object.keys(score).forEach(k=>score[k]+=0.5); }
-  const top = Object.entries(score).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k])=>k);
-  return new Set(top);
-}
-
-/* ========================= 결과 생성 ========================= */
+/* ---------- 무드 스코어 ---------- */
 function scoreMood({industry,goal,platform,audience,tone,brand,visual,energy}){
   const s = {modern:0,minimal:0,retro:0,brutal:0,pop:0,tech:0,warm:0,organic:0,luxury:0,y2k:0,classic:0,sporty:0,cozy:0};
   const add=(k,v)=>s[k]+=v;
@@ -569,7 +497,109 @@ function scoreMood({industry,goal,platform,audience,tone,brand,visual,energy}){
   return {winner: entries[0][0], scores: s};
 }
 
-function drawBarsComposition(platform, goal, tone){
+/* ---------- 페르소나 생성(자동/수동 병합) ---------- */
+function buildPersonaAuto(ctx){
+  const names=['김하늘','박민수','이서윤','정우진','최다은','오지후','강수민','유민서','윤도현','한가은'];
+  const name=names[Math.floor(Math.random()*names.length)];
+  const ageMap={youth:'22–26',gen:'27–34',adult:'30–45',pro:'28–42',premium:'32–48'};
+  const roleMap={
+    tech:'프로덕트 마케터', fashion:'브랜드 MD', food:'프랜차이즈 마케터', finance:'디지털 마케터',
+    culture:'전시 기획자', edu:'교육 콘텐츠 기획자', sports:'스폰서십 매니저', travel:'투어 기획자',
+    auto:'모빌리티 PM', game:'게임 커뮤니티 매니저', estate:'분양 마케터', health:'헬스케어 교육 매니저',
+    home:'리빙 MD', music:'레이블 프로모터', ngo:'캠페인 매니저'
+  };
+  const channels=(ctx.platform==='sns')?['인스타그램','틱톡','유튜브 쇼츠']:(ctx.platform==='web'||ctx.platform==='app')?['검색','유튜브','브런치']:['현수막','지역 커뮤니티','인스타그램'];
+  const style={trust:'정제·명료',friendly:'밝고 친근',bold:'대조 강한 강조형',warm:'뉴트럴/휴먼'}[ctx.tone];
+
+  const bullets=[
+    `선호 톤: ${style}`,
+    `무드 적합: ${MOOD_INFO[ctx.moodKey].label.replace(/ .*/,'')}`,
+    `이미지 성향: ${(ctx.visual==='photo')?'사진 중심':'일러스트/아이콘 성향'}`,
+    `의사결정 기준: 정보 명료성 > 일관성 > 심미성`,
+    `콘텐츠 선호: ${ctx.platform==='sns'?'짧은 문장 & 썸네일 중심':'섹션형 정보 & 증거 데이터'}`,
+    `KPI: ${ctx.goal==='conversion'?'전환율/CTR':'도달/체류/참여'}`
+  ];
+  const headerTags=[`👤 ${name} (${ageMap[ctx.audience]||'28–38'})`,`직무: ${roleMap[ctx.industry]||'마케팅 실무자'}`,`채널: ${channels.join('·')}`];
+  const implication=`디자인 임플리케이션 — 헤드라인은 ${ctx.tone==='bold'?'압축·강조형':'명료·간결형'}, 비주얼은 ${ctx.visual==='photo'?'사실성 강화 사진 중심':'개념 명확화 일러스트/아이콘'}, 레이아웃은 ${ctx.platform==='sns'?'시리즈 템플릿':'섹션 구획'}으로 <b>${(ctx.goal==='conversion'?'전환 극대화':'핵심 이해')}</b> 달성.`;
+  return {headerTags,bullets,implication};
+}
+function buildPersonaFinal(ctx){
+  if(personaMode!=='manual') return buildPersonaAuto(ctx);
+  const name = (document.getElementById('ps_name').value||'가상 사용자').trim();
+  const age  = document.getElementById('ps_age').value||'25–34';
+  const role = (document.getElementById('ps_role').value||'마케팅 실무자').trim();
+  const channels = (document.getElementById('ps_channels').value||'인스타그램, 유튜브').split(',').map(s=>s.trim()).filter(Boolean);
+  const style = document.getElementById('ps_style').value||'정제/명료';
+  const goal  = (document.getElementById('ps_goal').value||'명확한 메시지 전달').trim();
+  const pain  = (document.getElementById('ps_pain').value||'첫 화면에서 관심 유도 실패').trim();
+
+  const headerTags=[`👤 ${name} (${age})`,`직무: ${role}`,`채널: ${channels.join('·')}`];
+  const bullets=[
+    `선호 톤/스타일: ${style}`,
+    `무드 적합: ${MOOD_INFO[ctx.moodKey].label.replace(/ .*/,'')}`,
+    `핵심 목표: ${goal}`,
+    `Pain Point: ${pain}`,
+    `의사결정 기준: 명료성·일관성·가독성`,
+    `콘텐츠 선호: ${ctx.platform==='sns'?'짧은 문장 & 썸네일 중심':'섹션형 정보 & 증거 데이터'}`
+  ];
+  const implication=`디자인 임플리케이션 — ${ctx.platform==='sns'?'첫 장 썸네일/타이틀로 관심 포착, 슬라이드별 한 메시지':'히어로 가시성, 섹션 구획과 증거 데이터 노출'}를 통해 <b>${goal}</b> 달성.`;
+  return {headerTags, bullets, implication};
+}
+
+/* ---------- 타이포 추천 ---------- */
+function typoRecommend(audience,tone){
+  const pick = (arr,bias=0)=>arr[(Math.floor(Math.random()*arr.length)+bias)%arr.length];
+  let body='Pretendard', head='Montserrat';
+  if(audience==='premium'){ body=pick(['Noto Serif KR','Cormorant Garamond','Source Serif 4','Lora','DM Serif Text'],1);
+                            head=pick(['Playfair Display','DM Serif Display','Cinzel','Noto Serif KR','Cabinet Grotesk'],2); }
+  else if(audience==='pro' || tone==='trust'){ body=pick(['Inter','Source Sans 3','IBM Plex Sans KR','SUIT','Open Sans','Roboto'],1);
+                                               head=pick(['Poppins','Raleway','Pretendard Black','Archivo Black','Montserrat'],1); }
+  else if(tone==='friendly'){ body=pick(['Spoqa Han Sans Neo','Gmarket Sans','Nanum Gothic','SUIT','Lato'],1);
+                              head=pick(['Poppins','Rounded Mplus','Noto Sans KR Bold','Pretendard Black','Montserrat']); }
+  else if(tone==='bold'){ body=pick(['Inter','SUIT','Pretendard','Gmarket Sans','IBM Plex Sans KR'],2);
+                          head=pick(['Oswald','Bebas Neue','Pretendard Black','Archivo Black','Montserrat'],2); }
+  else if(tone==='warm'){ body=pick(['Noto Sans KR','Apple SD Gothic Neo','Nanum Gothic','Harmonia Sans'],1);
+                          head=pick(['Noto Serif KR','Playfair Display','Lora','DM Serif Display','Raleway']); }
+  else { body=pick(TYPO_POOL.body); head=pick(TYPO_POOL.head); }
+  const guide='리딩 1.6–1.8 / 트래킹 0~+2 / 커닝은 제목 글자쌍 수동 보정';
+  return [body+' (가독성 16–18px)', head+' (강조/헤드라인)', guide];
+}
+
+/* ---------- 성향/구성 비율 그래프 ---------- */
+function drawBars(moodKey,tone){
+  const dims=[
+    {key:'aesth',label:'심미성'},{key:'read',label:'가독성'},
+    {key:'bold',label:'대담함'},{key:'access',label:'편의성'},
+    {key:'trend',label:'트렌드성'}
+  ];
+  const base={
+    modern:{aesth:80,read:85,bold:55,access:80,trend:70},
+    minimal:{aesth:78,read:88,bold:40,access:85,trend:65},
+    retro:{aesth:75,read:72,bold:60,access:70,trend:60},
+    brutal:{aesth:68,read:60,bold:90,access:55,trend:75},
+    pop:{aesth:72,read:70,bold:78,access:65,trend:82},
+    tech:{aesth:74,read:76,bold:65,access:72,trend:85},
+    warm:{aesth:78,read:78,bold:50,access:80,trend:62},
+    organic:{aesth:76,read:80,bold:42,access:82,trend:60},
+    luxury:{aesth:86,read:80,bold:55,access:78,trend:75},
+    y2k:{aesth:70,read:64,bold:82,access:58,trend:88},
+    classic:{aesth:82,read:82,bold:48,access:80,trend:66},
+    sporty:{aesth:72,read:72,bold:78,access:66,trend:78},
+    cozy:{aesth:76,read:80,bold:46,access:82,trend:63}
+  };
+  const toneAdj=(k)=>({trust:{read:+6,access:+6,bold:-6,trend:-2}[k]||0,
+                       friendly:{read:+2,access:+2,aesth:+2,bold:-2}[k]||0,
+                       bold:{bold:+10,read:-4,access:-4,trend:+4}[k]||0,
+                       warm:{aesth:+3,read:+3,access:+3,trend:-2}[k]||0}[tone]||0);
+  const prof=base[moodKey]||base.modern;
+  const box=$('#barBox'); box.innerHTML='';
+  dims.forEach(d=>{
+    const v=Math.max(0,Math.min(100,(prof[d.key]||70)+(toneAdj(d.key)||0)));
+    box.insertAdjacentHTML('beforeend',`<div class="barRow"><div class="small">${d.label}</div><div class="bar"><i style="width:${v}%"></i></div></div>`);
+  });
+}
+function drawComposition(platform,goal){
+  // 이미지/텍스트/여백/CTA 강조 비율(가이드 값)
   let img=50, txt=35, white=15, cta=50;
   if(platform==='sns'){
     if(goal==='education'){ img=30; txt=50; white=20; cta=35; }
@@ -578,103 +608,143 @@ function drawBarsComposition(platform, goal, tone){
   }else if(platform==='web'){ img=45; txt=35; white=20; cta=(goal==='conversion'?75:55); }
   else if(platform==='app'){ img=40; txt=40; white=20; cta=(goal==='conversion'?70:50); }
   else if(platform==='poster'){ img=60; txt=25; white=15; cta=(goal==='campaign'?65:45); }
+
+  const rows=[['이미지 비중',img],['텍스트 양',txt],['여백/호흡',white],['CTA 강조',cta]];
+  const box=$('#compBars'); box.innerHTML='';
+  rows.forEach(([label,val])=>{
+    box.insertAdjacentHTML('beforeend',`<div class="barRow"><div class="small">${label}</div><div class="bar"><i style="width:${val}%;background:linear-gradient(90deg,#34d399,#60a5fa)"></i></div></div>`);
+  });
 }
 
-function validateAll(){
-  const ids = ['#q_industry','#q_goal','#q_platform','#q_audience','#q_tone','#q_ban','#q_brand','#q_visual','#q_energy'];
-  return ids.every(id => $(id).value !== '-');
+/* ---------- 팔레트/대비/스와치 ---------- */
+function drawSwatches(pal){ const box=$('#swatches'); box.innerHTML=''; pal.forEach(c=>{box.insertAdjacentHTML('beforeend',`<div class="c"><div style="background:${c}"></div><span>${c.toUpperCase()}</span></div>`);}); }
+
+/* ---------- 레이아웃 비율(정확/추천) ---------- */
+function renderRatioPreview(ratios, activeSet=new Set()){
+  const line = $('#ratioLine'); line.innerHTML='';
+  ratios.forEach(r=>{
+    const el=document.createElement('div'); el.className='ratio'; el.dataset.ratio=r;
+    if(activeSet.has(r)) el.classList.add('active');
+    const inner=document.createElement('div'); inner.className='inner';
+    const lab=document.createElement('label'); lab.textContent=r;
+    el.appendChild(inner); el.appendChild(lab); line.appendChild(el);
+  });
+
+  // 0 픽셀 이슈 방지 + 정확 비율 센터링
+  line.querySelectorAll('.ratio').forEach(box=>{
+    let w=box.clientWidth-16, h=box.clientHeight-16;
+    if(w<=0||h<=0){ w=92; h=56; } // fallback
+    const [a,b]=box.dataset.ratio.split(':').map(Number);
+    let iw=w, ih=iw*(b/a);
+    if(ih>h){ ih=h; iw=ih*(a/b); }
+    const inner=box.querySelector('.inner');
+    inner.style.width=iw+'px'; inner.style.height=ih+'px';
+    inner.style.left=((w-iw)/2+8)+'px'; inner.style.top=((h-ih)/2+8)+'px';
+  });
 }
-const modal = $('#modal');
-function openModal(){ modal.style.display='grid'; }
-function closeModal(){ modal.style.display='none'; }
-function resetForm(){
-  ['q_industry','q_goal','q_platform','q_audience','q_tone','q_ban','q_brand','q_visual','q_energy']
-    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value='-'; });
+function recommendRatios(platform,goal,tone){
+  const score={'1:1':0,'4:5':0,'16:9':0};
+  if(platform==='sns'){ score['1:1']+=3; score['4:5']+=3; score['16:9']+=1; }
+  if(platform==='poster'){ score['4:5']+=4; score['1:1']+=2; score['16:9']+=1; }
+  if(platform==='web'||platform==='app'){ score['16:9']+=4; score['4:5']+=2; score['1:1']+=1; }
+  if(goal==='campaign'){ score['4:5']+=1; score['16:9']+=1; }
+  if(tone==='bold'){ Object.keys(score).forEach(k=>score[k]+=0.5); }
+  return new Set(Object.entries(score).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k])=>k));
 }
 
-/* =============== 메인 빌드 =============== */
+/* ---------- 결과 빌드 ---------- */
 function buildResult(){
-  const industry = $('#q_industry').value;
-  const goal = $('#q_goal').value;
-  const platform = $('#q_platform').value;
-  const audience = $('#q_audience').value;
-  const tone = $('#q_tone').value;
-  const ban = $('#q_ban').value;
-  const brand = $('#q_brand').value;
-  const visual = $('#q_visual').value;
-  const energy = $('#q_energy').value;
+  const industry=$('#q_industry').value, goal=$('#q_goal').value, platform=$('#q_platform').value;
+  const audience=$('#q_audience').value, tone=$('#q_tone').value, ban=$('#q_ban').value;
+  const brand=$('#q_brand').value, visual=$('#q_visual').value, energy=$('#q_energy').value;
 
   // 태그/요약
   $('#tagIndustry').textContent = '#'+$('#q_industry').selectedOptions[0].textContent;
-  $('#tagGoal').textContent = '#'+$('#q_goal').selectedOptions[0].textContent;
+  $('#tagGoal').textContent     = '#'+$('#q_goal').selectedOptions[0].textContent;
   $('#tagPlatform').textContent = '#'+$('#q_platform').selectedOptions[0].textContent;
   $('#tagAudience').textContent = '#'+$('#q_audience').selectedOptions[0].textContent;
-  $('#tagTone').textContent = '#'+$('#q_tone').selectedOptions[0].textContent;
-  $('#tagBan').textContent = (ban==='none'?'#제약 없음':'#'+$('#q_ban').selectedOptions[0].textContent);
+  $('#tagTone').textContent     = '#'+$('#q_tone').selectedOptions[0].textContent;
+  $('#tagBan').textContent      = (ban==='none'?'#제약 없음':'#'+$('#q_ban').selectedOptions[0].textContent);
 
-  const moodScores = scoreMood({industry,goal,platform,audience,tone,brand,visual,energy});
-  const moodKey = moodScores.winner;
-  const mood = MOOD_INFO[moodKey];
+  const moodScores=scoreMood({industry,goal,platform,audience,tone,brand,visual,energy});
+  const moodKey=moodScores.winner, mood=MOOD_INFO[moodKey];
 
-  $('#summaryText').innerHTML =
-    `선택한 조건을 바탕으로 <b>${mood.label}</b> 무드가 가장 적합합니다. 이 무드 기준으로 팔레트·서체·레이아웃·페르소나를 제안합니다.`;
+  $('#summaryText').innerHTML = `선택값을 바탕으로 <b>${mood.label}</b> 무드가 가장 적합합니다. 이 무드를 기준으로 팔레트·서체·레이아웃·구성비율·페르소나를 제안합니다.`;
   $('#moodTitle').textContent = `#무드 추천 · ${mood.label}`;
-  const mt = $('#moodTags'); mt.innerHTML=''; (mood.tags||[]).forEach(t=>mt.insertAdjacentHTML('beforeend', `<span class="tag">${t}</span>`));
+  const mt=$('#moodTags'); mt.innerHTML=''; (mood.tags||[]).forEach(t=>mt.insertAdjacentHTML('beforeend',`<span class="tag">${t}</span>`));
 
   // 페르소나
-  const persona = buildPersona({industry,audience,platform,tone,brand,goal,visual,energy,moodKey});
-  const ph = $('#personaHeader'); ph.innerHTML='';
-  persona.headerTags.forEach(t=>ph.insertAdjacentHTML('beforeend', `<span class="tag">${t}</span>`));
+  const persona = buildPersonaFinal({industry,goal,platform,audience,tone,brand,visual,energy,moodKey});
+  const ph=$('#personaHeader'); ph.innerHTML=''; persona.headerTags.forEach(t=>ph.insertAdjacentHTML('beforeend',`<span class="tag">${t}</span>`));
   $('#personaPoints').innerHTML = persona.bullets.map(x=>`<li>${x}</li>`).join('');
   $('#personaImp').innerHTML = persona.implication;
 
-  // 팔레트 + 제약/대비
-  let pal = [...(mood.colors||['#111827','#2563eb','#e5e7eb','#0ea5e9','#f8fafc'])];
-  if(ban==='noNeon' && (moodKey==='pop'||moodKey==='tech'||moodKey==='y2k')){ pal = pal.map((hex,i)=> i===1||i===2 ? '#64748b' : hex); }
-  if(ban==='hiDensity'){ /* 과밀 금지 → 대비는 유지하고 중채도 선택 */ pal = pal.map((hex,i)=> i===1 ? '#334155' : hex); }
-  if(ban==='noStocky' && visual==='photo'){ /* 스톡 느낌 억제: 뉴트럴 팔레트 */ pal = ['#111827','#6b7280','#e5e7eb','#94a3b8','#f8fafc']; }
+  // 팔레트 + 대비
+  let pal=[...(mood.colors||['#111827','#2563eb','#e5e7eb','#0ea5e9','#f8fafc'])];
+  if(ban==='noNeon' && (moodKey==='pop'||moodKey==='tech'||moodKey==='y2k')) pal=pal.map((hex,i)=> i===1||i===2 ? '#64748b' : hex);
+  if(ban==='hiDensity') pal=pal.map((hex,i)=> i===1 ? '#334155' : hex);
+  if(ban==='noStocky' && visual==='photo') pal=['#111827','#6b7280','#e5e7eb','#94a3b8','#f8fafc'];
   drawSwatches(pal);
-  const bg = pal[pal.length-1], fg = '#111111';
-  const ratio = contrast(bg, fg);
-  const label = ratio>=7 ? '가독성: 매우 우수' : ratio>=4.5 ? '가독성: 우수' : '가독성: 보통';
-  $('#contrastNote').textContent = label;
-  $('#meter').style.width = Math.min(100,(ratio/7)*100)+'%';
+  const bg=pal[pal.length-1], fg='#111111', ratio=contrast(bg,fg);
+  const label= ratio>=7 ? '가독성: 매우 우수' : ratio>=4.5 ? '가독성: 우수' : '가독성: 보통';
+  $('#contrastNote').textContent=label; $('#meter').style.width=Math.min(100,(ratio/7)*100)+'%';
 
   // 타이포
-  const [body, head, rule] = typoRecommend(audience, tone);
-  $('#typoList').innerHTML = `
-    <li>본문: <b>${body}</b></li>
-    <li>헤드라인: <b>${head}</b></li>
-    <li>${rule}</li>
-  `;
+  const [body,head,rule]=typoRecommend(audience,tone);
+  $('#typoList').innerHTML = `<li>본문: <b>${body}</b></li><li>헤드라인: <b>${head}</b></li><li>${rule}</li>`;
   $('#typeAccess').textContent = label.replace('가독성','웹 접근성');
 
   // 레이아웃 가이드 + 비율 추천
-  const guide = LAYOUT_GUIDE[platform] || LAYOUT_GUIDE.web;
-  $('#gridList').innerHTML = guide.map(g=>`<li>${g}</li>`).join('');
-  const ratios = ['1:1','4:5','16:9'];
-  const active = recommendRatios(platform, goal, tone);
-  renderRatioPreview(ratios, active);
+  const guide=LAYOUT_GUIDE[platform]||LAYOUT_GUIDE.web;
+  $('#gridList').innerHTML=guide.map(g=>`<li>${g}</li>`).join('');
+  const ratios=['1:1','4:5','16:9'];
+  const active=recommendRatios(platform,goal,tone);
+  renderRatioPreview(ratios,active);
 
-  // 성향 그래프
-  drawBars(moodKey, tone);
+  // 구성 비율 + 성향 그래프
+  drawComposition(platform,goal);
+  drawBars(moodKey,tone);
 }
 
-/* =============== 이벤트 =============== */
-document.getElementById('goResult').onclick=()=>{
-  if(!validateAll()){ openModal(); return; }
-  buildResult();
-  document.getElementById('screen-ask').style.display='none';
-  document.getElementById('screen-result').style.display='';
-  window.scrollTo({top:0,behavior:'smooth'});
+/* ---------- 이벤트/토글/로딩 ---------- */
+const btnAuto=document.getElementById('btnAuto');
+const btnManual=document.getElementById('btnManual');
+const ps_form=document.getElementById('ps_form');
+let personaMode='auto';
+
+btnAuto.onclick=()=>{
+  personaMode='auto';
+  btnAuto.classList.add('active'); btnManual.classList.remove('active');
+  ps_form.style.display='none';
+  openModal('modalAuto');
 };
+btnManual.onclick=()=>{
+  personaMode='manual';
+  btnManual.classList.add('active'); btnAuto.classList.remove('active');
+  ps_form.style.display='';
+};
+
+document.getElementById('goResult').onclick=()=>{
+  if(!validateAll()){ openModal('modalRequire'); return; }
+  // 로딩
+  const loading=document.getElementById('loading');
+  loading.style.display='grid';
+  setTimeout(()=>{
+    buildResult();
+    loading.style.display='none';
+    document.getElementById('screen-ask').style.display='none';
+    document.getElementById('screen-result').style.display='';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }, 1300);
+};
+
 document.getElementById('back').onclick=()=>{
   resetForm();
   document.getElementById('screen-result').style.display='none';
   document.getElementById('screen-ask').style.display='';
   window.scrollTo({top:0,behavior:'smooth'});
 };
-document.getElementById('print').onclick=()=>{ window.print(); };
+document.getElementById('print').onclick=()=>window.print();
 </script>
 </body>
 </html>
