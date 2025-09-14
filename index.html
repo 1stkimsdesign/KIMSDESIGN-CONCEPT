@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🎁 디자인 컨셉 기획 생성기 (드롭다운 간단형)</title>
-<meta name="description" content="산업군/목적/플랫폼/타겟/톤/제약을 선택하면 용어 대백과 결로 컬러·서체·레이아웃·무드를 자동 추천합니다.">
+<title>🎁 디자인 컨셉 기획 생성기 (드롭다운 9문항)</title>
+<meta name="description" content="산업군/목적/용도/타겟/톤/제약/브랜드 성격/이미지 스타일/에너지 레벨을 선택하면 용어 대백과 결로 컬러·서체·레이아웃·무드를 자동 추천합니다.">
 <style>
   :root{
     --bg:#fff; --fg:#0b0b0c; --muted:#6b7280; --line:#e5e7eb; --card:#f8fafc;
@@ -27,9 +27,8 @@
   .btn.primary{background:linear-gradient(180deg,#93c5fd,#60a5fa);border-color:transparent;font-weight:800}
   .small{font-size:12px;color:var(--muted)}
   .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
-  .col2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .col3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  @media (max-width: 920px){ .col2{grid-template-columns:1fr} .col3{grid-template-columns:1fr} }
+  @media (max-width: 980px){ .col3{grid-template-columns:1fr} }
 
   .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#334155;font-size:12px}
   .swatch{display:flex;gap:10px;flex-wrap:wrap}
@@ -38,7 +37,7 @@
   .swatch .c span{display:block;padding:6px 6px 8px;font-size:11px;text-align:center;color:#334155}
 
   .resultGrid{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
-  @media (max-width: 920px){ .resultGrid{grid-template-columns:1fr} }
+  @media (max-width: 980px){ .resultGrid{grid-template-columns:1fr} }
   .hero{padding:18px;border:1px solid var(--line);border-radius:14px;background:#fff}
   .meter{height:12px;background:#f1f5f9;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
   .meter>i{display:block;height:100%;background:#22c55e}
@@ -47,14 +46,42 @@
   .barRow{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center}
   .bar{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden}
   .bar>i{display:block;height:100%;background:linear-gradient(90deg,#60a5fa,#22d3ee)}
-  footer{margin:26px 0 10px;text-align:center;color:var(--muted);font-size:12px}
+
+  /* 강조 무드 카드 */
+  .moodCard{
+    border:1px solid var(--line); border-radius:16px; padding:14px;
+    background:linear-gradient(135deg,#eff6ff 0%, #fff 50%, #fdf2f8 100%);
+    box-shadow:0 6px 18px rgba(37,99,235,.08);
+  }
+  .moodTitle{font-size:20px; font-weight:900; display:flex; align-items:center; gap:10px}
+  .moodTags{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+
+  /* 더 컴팩트한 본문 크기(타이포/그리드 카드) */
+  .compact ul{font-size:13px; line-height:1.6; margin:6px 0 0 18px}
+  .compact p, .compact .small{font-size:12px}
+
+  /* 레이아웃 미리보기 라인 */
+  .previewLine{display:flex;gap:10px;align-items:center;flex-wrap:nowrap;overflow-x:auto}
+  .ratio{
+    flex:0 0 auto; width:84px; height:56px; border:1px solid var(--line); border-radius:10px;
+    position:relative; background:#fff;
+  }
+  .ratio .inner{position:absolute; inset:8px; border:2px dotted #93c5fd; border-radius:6px}
+  .ratio[data-r="1:1"] .inner{inset:12px}
+  .ratio[data-r="4:5"] .inner{inset:8px 14px}
+  .ratio[data-r="16:9"] .inner{inset:12px 6px}
+  .ratio label{position:absolute; bottom:4px; left:0; right:0; text-align:center; font-size:11px; color:#334155}
+
+  /* 모달 */
+  .modal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.35); z-index:50}
+  .modal .box{background:#fff; border-radius:14px; padding:16px 18px; width:min(360px,92vw); box-shadow:0 10px 30px rgba(0,0,0,.2)}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap brand">
     <div style="font-size:22px">🎁 디자인 컨셉 기획 생성기</div>
-    <span class="badge">드롭다운 6문항 → 무드/컬러/타이포/레이아웃 자동 추천</span>
+    <span class="badge">드롭다운 9문항 → 무드/컬러/서체/레이아웃 자동 추천</span>
   </div>
 </header>
 
@@ -63,20 +90,30 @@
   <!-- STEP 1: 질문 화면 -->
   <section id="screen-ask" class="panel grid">
     <div class="row" style="justify-content:space-between">
-      <h2>1) 질문에 답해 주세요 (6문항·20초)</h2>
-      <div class="tag">용어 대백과 결로 추천</div>
+      <h2>1) 질문에 답해 주세요 (9문항)</h2>
+      <div class="tag">모든 항목은 필수입니다</div>
     </div>
 
     <div class="col3">
       <div class="card">
         <h3>① 산업군</h3>
         <select id="q_industry">
+          <option value="-">-</option>
           <option value="tech">IT/테크</option>
           <option value="fashion">패션/뷰티</option>
           <option value="food">푸드/레스토랑</option>
           <option value="finance">금융/핀테크</option>
           <option value="culture">문화/전시</option>
           <option value="edu">교육/공공</option>
+          <option value="sports">스포츠/레저</option>
+          <option value="travel">여행/관광</option>
+          <option value="auto">자동차/모빌리티</option>
+          <option value="game">게임/e스포츠</option>
+          <option value="estate">부동산/건설</option>
+          <option value="health">의료/헬스케어/제약</option>
+          <option value="home">가전/가구/리빙</option>
+          <option value="music">음악/엔터테인먼트</option>
+          <option value="ngo">비영리/NGO</option>
         </select>
         <p class="small">무드·타이포·이미저리에 가중치 적용</p>
       </div>
@@ -84,6 +121,7 @@
       <div class="card">
         <h3>② 목적</h3>
         <select id="q_goal">
+          <option value="-">-</option>
           <option value="conversion">전환/구매/가입</option>
           <option value="awareness">브랜드 인지도</option>
           <option value="education">안내/설명</option>
@@ -93,8 +131,9 @@
       </div>
 
       <div class="card">
-        <h3>③ 플랫폼</h3>
+        <h3>③ 용도/매체</h3>
         <select id="q_platform">
+          <option value="-">-</option>
           <option value="web">웹 랜딩/프로덕트</option>
           <option value="app">모바일 앱</option>
           <option value="sns">SNS/배너</option>
@@ -106,6 +145,7 @@
       <div class="card">
         <h3>④ 타겟</h3>
         <select id="q_audience">
+          <option value="-">-</option>
           <option value="gen">대중</option>
           <option value="youth">10–20대</option>
           <option value="adult">30–40대</option>
@@ -118,6 +158,7 @@
       <div class="card">
         <h3>⑤ 톤앤매너</h3>
         <select id="q_tone">
+          <option value="-">-</option>
           <option value="trust">신뢰·정제</option>
           <option value="friendly">친근·부드러움</option>
           <option value="bold">대담·강렬</option>
@@ -129,12 +170,48 @@
       <div class="card">
         <h3>⑥ 제약 사항</h3>
         <select id="q_ban">
+          <option value="-">-</option>
           <option value="none">없음</option>
           <option value="noNeon">네온/강한 그라디언트 금지</option>
           <option value="noShadow">강한 그림자/글로시 금지</option>
           <option value="noRound">과도한 라운드 금지</option>
         </select>
         <p class="small">팔레트·컴포넌트 스타일 제약</p>
+      </div>
+
+      <div class="card">
+        <h3>⑦ 브랜드 성격</h3>
+        <select id="q_brand">
+          <option value="-">-</option>
+          <option value="innovative">혁신적</option>
+          <option value="reliable">신뢰/안정</option>
+          <option value="friendly">친근/유머</option>
+          <option value="luxury">프리미엄/감성</option>
+        </select>
+        <p class="small">무드·타이포 미세 조정</p>
+      </div>
+
+      <div class="card">
+        <h3>⑧ 이미지 스타일</h3>
+        <select id="q_visual">
+          <option value="-">-</option>
+          <option value="photo">사진 중심</option>
+          <option value="illustration">일러스트 중심</option>
+          <option value="iconic">아이콘/픽토 스타일</option>
+          <option value="mixed">혼합</option>
+        </select>
+        <p class="small">이미지/아이콘 방향 제안</p>
+      </div>
+
+      <div class="card">
+        <h3>⑨ 에너지 레벨</h3>
+        <select id="q_energy">
+          <option value="-">-</option>
+          <option value="calm">차분/정돈</option>
+          <option value="balanced">균형</option>
+          <option value="dynamic">역동/활기</option>
+        </select>
+        <p class="small">대담함·색채 강도 조정</p>
       </div>
     </div>
 
@@ -154,56 +231,61 @@
     </div>
 
     <div class="resultGrid">
-      <!-- 왼쪽: 요약/팔레트/미리보기 -->
+      <!-- 왼쪽: 요약/무드/팔레트/카피&이미지 -->
       <div class="grid" style="gap:14px">
         <div class="card">
           <h3>📌 요약</h3>
           <div class="row" style="gap:8px;margin-top:4px">
             <span class="tag" id="tagIndustry">#산업</span>
             <span class="tag" id="tagGoal">#목적</span>
-            <span class="tag" id="tagPlatform">#플랫폼</span>
+            <span class="tag" id="tagPlatform">#용도</span>
             <span class="tag" id="tagAudience">#타겟</span>
             <span class="tag" id="tagTone">#톤</span>
             <span class="tag" id="tagBan">#제약</span>
           </div>
           <p class="small" id="summaryText" style="margin-top:8px"></p>
-          <div class="row small" style="margin-top:6px">
-            <span class="tag" id="tagMood">#자동 무드 판정</span>
-          </div>
+        </div>
+
+        <!-- 강조: 무드 카드 (요약 바로 아래) -->
+        <div class="moodCard" id="moodCard">
+          <div class="moodTitle" id="moodTitle">무드 자동 판정</div>
+          <div class="moodTags" id="moodTags"></div>
         </div>
 
         <div class="card">
           <h3>🎨 컬러 팔레트</h3>
           <div class="swatch" id="swatches" style="margin-top:6px"></div>
           <div class="row" style="gap:10px;margin-top:10px">
-            <div class="tag" id="contrastNote">접근성 대비</div>
+            <div class="tag" id="contrastNote">가독성: -</div>
             <div class="meter" style="flex:1 1 200px"><i id="meter" style="width:0%"></i></div>
           </div>
         </div>
 
-        <div class="card hero" id="heroPrev">
-          <div class="tag">🎯 미리보기</div>
-          <h3 id="heroTitle" style="margin:6px 0 4px">타이틀 헤드라인</h3>
-          <p id="heroLead" class="small">핵심 메시지 톤: 신뢰/친근/대담/따뜻 중 자동 반영</p>
-          <div class="row" style="margin-top:8px">
-            <span class="tag" id="heroChip1">CTA 강도</span>
-            <span class="tag" id="heroChip2">정보 위계</span>
-          </div>
+        <!-- 좌측 하단 영역: 카피 톤 & CTA + 이미지 방향 제안 -->
+        <div class="card">
+          <h3>✍️ 카피 톤 & CTA · 🖼️ 이미지 방향</h3>
+          <ul id="copyList" style="margin:6px 0 0 18px; line-height:1.6; font-size:13px"></ul>
+          <ul id="imageList" style="margin:6px 0 0 18px; line-height:1.6; font-size:13px"></ul>
         </div>
       </div>
 
       <!-- 오른쪽: 타이포/그리드/그래프 -->
       <div class="grid" style="gap:14px">
-        <div class="card">
+        <div class="card compact">
           <h3>🔡 타이포그래피</h3>
-          <ul id="typoList" style="margin:6px 0 0 18px;line-height:1.8"></ul>
-          <div class="small">※ 본문은 가독성 중심(가변폭), 헤드라인은 디스플레이 — 용어 대백과 기준</div>
+          <ul id="typoList"></ul>
+          <p class="small" id="typeAccess">웹 접근성: 매우 우수</p>
         </div>
 
-        <div class="card">
+        <div class="card compact">
           <h3>📐 레이아웃/그리드</h3>
-          <ul id="gridList" style="margin:6px 0 0 18px;line-height:1.8"></ul>
-          <div class="small">※ 12컬럼/모듈러/베이스라인/세이프 존 등 플랫폼에 맞춰 조합</div>
+          <ul id="gridList"></ul>
+          <div class="small" style="margin-top:8px">레이아웃 미리보기</div>
+          <div class="previewLine" id="ratioLine">
+            <div class="ratio" data-r="1:1"><div class="inner"></div><label>1:1</label></div>
+            <div class="ratio" data-r="4:5"><div class="inner"></div><label>4:5</label></div>
+            <div class="ratio" data-r="16:9"><div class="inner"></div><label>16:9</label></div>
+          </div>
         </div>
 
         <div class="card">
@@ -217,18 +299,29 @@
   <footer>※ 김씨네디자인실 자체 제작 콘텐츠 — 무단 복제 및 배포 금지</footer>
 </div>
 
+<!-- 모달 -->
+<div class="modal" id="modal">
+  <div class="box">
+    <h3 style="margin:0 0 8px 0">체크 필요</h3>
+    <p style="margin:0 0 10px 0">모든 항목을 선택해 주세요.</p>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn" onclick="closeModal()">확인</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* =========================
-   데이터 맵 (무드/팔레트/그리드/타이포)
+   데이터 맵
 ========================= */
 const MOOD_INFO = {
-  modern:{label:'모더니즘 🧩', colors:['#111827','#2563eb','#e5e7eb','#0ea5e9','#f8fafc']},
-  minimal:{label:'미니멀 🌫️', colors:['#0f172a','#94a3b8','#f1f5f9','#334155','#e2e8f0']},
-  retro:{label:'레트로 📼', colors:['#5b3a29','#eab308','#ef4444','#fde68a','#f3e8ff']},
-  brutal:{label:'브루탈리즘 🧨', colors:['#000000','#22c55e','#facc15','#e11d48','#ffffff']},
-  pop:{label:'팝/캐주얼 🎉', colors:['#111827','#f43f5e','#fb923c','#22d3ee','#fef3c7']},
-  tech:{label:'테크/사이버 💾', colors:['#0b0b0c','#22d3ee','#60a5fa','#a78bfa','#111827']},
-  warm:{label:'웜/휴먼 ☕', colors:['#1f2937','#d97706','#b45309','#fde68a','#fdf2f8']}
+  modern:{label:'모더니즘 🧩', colors:['#111827','#2563eb','#e5e7eb','#0ea5e9','#f8fafc'], tags:['질서','보편성','절제']},
+  minimal:{label:'미니멀 🌫️', colors:['#0f172a','#94a3b8','#f1f5f9','#334155','#e2e8f0'], tags:['여백','정돈','차분']},
+  retro:{label:'레트로 📼', colors:['#5b3a29','#eab308','#ef4444','#fde68a','#f3e8ff'], tags:['복고','질감','노스탤지아']},
+  brutal:{label:'브루탈리즘 🧨', colors:['#000000','#22c55e','#facc15','#e11d48','#ffffff'], tags:['대담','날것','원색']},
+  pop:{label:'팝/캐주얼 🎉', colors:['#111827','#f43f5e','#fb923c','#22d3ee','#fef3c7'], tags:['발랄','친근','비비드']},
+  tech:{label:'테크/사이버 💾', colors:['#0b0b0c','#22d3ee','#60a5fa','#a78bfa','#111827'], tags:['네온','클린','디지털']},
+  warm:{label:'웜/휴먼 ☕', colors:['#1f2937','#d97706','#b45309','#fde68a','#fdf2f8'], tags:['따뜻','휴먼','신뢰']}
 };
 
 const GRID_BY_PLATFORM = {
@@ -238,61 +331,114 @@ const GRID_BY_PLATFORM = {
   sns:['1:1/4:5/16:9 템플릿','키 비주얼 중심','세이프 존 준수','간결한 헤드라인']
 };
 
+const CTA_BY_GOAL = {
+  conversion:['지금 시작하기','무료 체험','다운로드'],
+  awareness:['더 알아보기','스토리 보기','철학 읽기'],
+  education:['가이드 보기','튜토리얼 보기','샘플 확인'],
+  campaign:['이벤트 참여','혜택 받기','쿠폰 받기']
+};
+
+const INDUSTRY_IMAGERY = {
+  tech:['대시보드 UI','네트워크 메타포','모듈형 카드','클린 아이콘'],
+  fashion:['룩북 크롭','질감 클로즈업','모노톤/하이컨트라스트','스타일링 샷'],
+  food:['식재료 클로즈업','따뜻한 조명','메뉴 카드','손글씨 악센트'],
+  finance:['신뢰 컬러','차분한 아이콘','데이터 시각화','케이스 스터디'],
+  culture:['포스터 타이포','텍스처 레이어','그리드 실험','전시 배너'],
+  edu:['학습 UI','도표/차트','친근 일러스트','명확한 안내'],
+  sports:['액션 샷','다이내믹 타이포','팀 컬러','스코어 보드'],
+  travel:['풍경/지도 메타포','따뜻한 색감','일러스트 스팟','사진+아이콘 혼합'],
+  auto:['동적 모션','메탈/광택 질감','테크 무드','실루엣 강조'],
+  game:['픽셀/네온 포인트','콘셉트 아트','대담한 헤드라인','UI HUD 모티프'],
+  estate:['광각 사진','정갈한 선','신뢰감 색채','정보 위계'],
+  health:['청결 화이트','파스텔 포인트','인포그래픽','안정감 사진'],
+  home:['제품 질감','라이프스타일 샷','소프트 톤','심플 아이콘'],
+  music:['무대/조명','앨범 아트 무드','리듬감 있는 타이포','네온 포인트'],
+  ngo:['현장 사진','진정성 컬러','정보 투명성','일러스트 보조']
+};
+
+/* 타이포 추천 (간결/직관) */
 function typoRecommend(audience, tone){
   const body = (audience==='premium') ? 'Noto Serif/Source Serif (신뢰·서사 16–18px)'
-              : (audience==='pro'||tone==='trust') ? 'Pretendard/Inter (가독성 16–18px)'
+              : (audience==='pro' || tone==='trust') ? 'Pretendard/Inter (가독성 16–18px)'
               : 'Pretendard/Inter (가독성 16–18px)';
-  const head = (tone==='bold'||audience==='youth') ? 'Condensed/Strong Sans (굵게, 자간 약간 좁게)'
+  const head = (tone==='bold' || audience==='youth') ? 'Condensed/Strong Sans (굵게, 자간 약간 좁게)'
               : (tone==='friendly') ? 'Rounded Sans (친근)'
-              : (tone==='trust'||audience==='premium') ? 'Humanist Sans/Serif Mix (정제)'
+              : (tone==='trust' || audience==='premium') ? 'Humanist Sans/Serif Mix (정제)'
               : 'Strong Sans';
   return [body, head, '리딩 1.6–1.8 / 트래킹 0~+2 / 커닝은 제목 글자쌍 수동 보정'];
 }
 
 /* =========================
-   무드 점수 규칙 (간단 가중치)
+   무드 점수 규칙 (세분화)
 ========================= */
-function scoreMood({industry,goal,platform,audience,tone}){
+function scoreMood({industry,goal,platform,audience,tone,brand,visual,energy}){
   const s = {modern:0,minimal:0,retro:0,brutal:0,pop:0,tech:0,warm:0};
+
   // 산업군
-  if(industry==='tech'){ s.modern+=2; s.tech+=3; s.minimal+=1; }
-  if(industry==='fashion'){ s.pop+=2; s.modern+=1; s.retro+=1; }
-  if(industry==='food'){ s.warm+=2; s.pop+=1; s.modern+=1; }
-  if(industry==='finance'){ s.modern+=2; s.minimal+=2; s.warm+=1; }
-  if(industry==='culture'){ s.retro+=2; s.modern+=1; s.brutal+=1; }
-  if(industry==='edu'){ s.minimal+=2; s.modern+=1; s.warm+=1; }
+  const add=(k,v)=>s[k]+=v;
+  if(industry==='tech'){ add('tech',3); add('modern',2); add('minimal',1); }
+  if(industry==='fashion'){ add('pop',2); add('modern',1); add('retro',1); }
+  if(industry==='food'){ add('warm',2); add('pop',1); add('modern',1); }
+  if(industry==='finance'){ add('modern',2); add('minimal',2); add('warm',1); }
+  if(industry==='culture'){ add('retro',2); add('modern',1); add('brutal',1); }
+  if(industry==='edu'){ add('minimal',2); add('modern',1); add('warm',1); }
+  if(industry==='sports'){ add('brutal',2); add('pop',2); }
+  if(industry==='travel'){ add('warm',2); add('pop',1); add('modern',1); }
+  if(industry==='auto'){ add('tech',2); add('modern',2); }
+  if(industry==='game'){ add('tech',1); add('pop',2); add('brutal',2); }
+  if(industry==='estate'){ add('modern',2); add('minimal',2); }
+  if(industry==='health'){ add('warm',2); add('minimal',2); }
+  if(industry==='home'){ add('warm',2); add('minimal',1); }
+  if(industry==='music'){ add('pop',2); add('tech',1); }
+  if(industry==='ngo'){ add('warm',2); add('minimal',1); }
 
   // 목적
-  if(goal==='conversion'){ s.modern+=1; s.brutal+=1; s.pop+=1; }
-  if(goal==='awareness'){ s.minimal+=1; s.modern+=1; s.retro+=1; }
-  if(goal==='education'){ s.minimal+=2; s.warm+=1; }
-  if(goal==='campaign'){ s.pop+=2; s.brutal+=2; }
+  if(goal==='conversion'){ add('modern',1); add('brutal',1); add('pop',1); }
+  if(goal==='awareness'){ add('minimal',1); add('modern',1); add('retro',1); }
+  if(goal==='education'){ add('minimal',2); add('warm',1); }
+  if(goal==='campaign'){ add('pop',2); add('brutal',2); }
 
-  // 플랫폼
-  if(platform==='web'){ s.modern+=2; s.minimal+=1; }
-  if(platform==='app'){ s.modern+=1; s.minimal+=2; }
-  if(platform==='sns'){ s.pop+=2; s.brutal+=1; }
-  if(platform==='poster'){ s.retro+=2; s.modern+=1; }
+  // 용도/매체
+  if(platform==='web'){ add('modern',2); add('minimal',1); }
+  if(platform==='app'){ add('minimal',2); add('modern',1); }
+  if(platform==='sns'){ add('pop',2); add('brutal',1); }
+  if(platform==='poster'){ add('retro',2); add('modern',1); }
 
   // 타겟
-  if(audience==='youth'){ s.pop+=2; s.brutal+=1; }
-  if(audience==='adult'){ s.minimal+=1; s.warm+=1; }
-  if(audience==='pro'){ s.modern+=2; s.minimal+=1; }
-  if(audience==='premium'){ s.warm+=1; s.modern+=1; s.minimal+=1; }
+  if(audience==='youth'){ add('pop',2); add('brutal',1); }
+  if(audience==='adult'){ add('minimal',1); add('warm',1); }
+  if(audience==='pro'){ add('modern',2); add('minimal',1); }
+  if(audience==='premium'){ add('warm',1); add('modern',1); add('minimal',1); }
 
-  // 톤앤매너
-  if(tone==='trust'){ s.modern+=2; s.minimal+=1; }
-  if(tone==='friendly'){ s.warm+=2; s.pop+=1; }
-  if(tone==='bold'){ s.brutal+=2; s.pop+=1; }
-  if(tone==='warm'){ s.warm+=2; s.retro+=1; }
+  // 톤
+  if(tone==='trust'){ add('modern',2); add('minimal',1); }
+  if(tone==='friendly'){ add('warm',2); add('pop',1); }
+  if(tone==='bold'){ add('brutal',2); add('pop',1); }
+  if(tone==='warm'){ add('warm',2); add('retro',1); }
 
-  // 정렬
+  // 브랜드 성격
+  if(brand==='innovative'){ add('tech',2); add('modern',1); }
+  if(brand==='reliable'){ add('modern',2); add('minimal',1); }
+  if(brand==='friendly'){ add('pop',2); add('warm',1); }
+  if(brand==='luxury'){ add('minimal',2); add('warm',1); }
+
+  // 이미지 스타일
+  if(visual==='photo'){ add('modern',1); add('warm',1); }
+  if(visual==='illustration'){ add('pop',1); add('retro',1); }
+  if(visual==='iconic'){ add('tech',1); add('minimal',1); }
+  if(visual==='mixed'){ add('modern',1); add('pop',1); }
+
+  // 에너지 레벨
+  if(energy==='calm'){ add('minimal',2); add('warm',1); }
+  if(energy==='balanced'){ add('modern',1); }
+  if(energy==='dynamic'){ add('brutal',2); add('pop',1); add('tech',1); }
+
   const entries = Object.entries(s).sort((a,b)=>b[1]-a[1]);
   return {winner: entries[0][0], scores: s};
 }
 
 /* =========================
-   접근성/유틸
+   유틸/접근성
 ========================= */
 const $=s=>document.querySelector(s);
 function hexToRgb(hex){hex=hex.replace('#',''); if(hex.length===3) hex=[hex[0],hex[0],hex[1],hex[1],hex[2],hex[2]].join(''); const num=parseInt(hex,16); return {r:(num>>16)&255,g:(num>>8)&255,b:num&255}}
@@ -303,13 +449,12 @@ function drawSwatches(pal){ const box=$('#swatches'); box.innerHTML=''; pal.forE
 /* =========================
    그래프(수제 막대)
 ========================= */
-function drawBars(scores){
+function drawBars(moodKey, tone){
   const dims = [
     {key:'aesth', label:'심미성'}, {key:'read', label:'가독성'},
-    {key:'bold', label:'대담함'}, {key:'access', label:'접근성'},
+    {key:'bold', label:'대담함'}, {key:'access', label:'편의성'},
     {key:'trend', label:'트렌드성'}
   ];
-  // 무드별 기본 프로파일
   const base = {
     modern:{aesth:80, read:85, bold:55, access:80, trend:70},
     minimal:{aesth:78, read:88, bold:40, access:85, trend:65},
@@ -319,8 +464,6 @@ function drawBars(scores){
     tech:{aesth:74, read:76, bold:65, access:72, trend:85},
     warm:{aesth:78, read:78, bold:50, access:80, trend:62}
   };
-  // 톤 가중치
-  const tone = $('#q_tone').value;
   const toneAdj = (k)=>({
     trust:{read:+6, access:+6, bold:-6, trend:-2}[k]||0,
     friendly:{read:+2, access:+2, aesth:+2, bold:-2}[k]||0,
@@ -328,17 +471,13 @@ function drawBars(scores){
     warm:{aesth:+3, read:+3, access:+3, trend:-2}[k]||0
   }[tone]||0);
 
-  const mood = scores.winner;
-  const prof = base[mood];
+  const prof = base[moodKey];
   const box = $('#barBox'); box.innerHTML='';
   dims.forEach(d=>{
     const v = Math.max(0, Math.min(100, (prof[d.key]||70)+(toneAdj(d.key)||0)));
-    box.insertAdjacentHTML('beforeend', `
-      <div class="barRow">
-        <div class="small">${d.label}</div>
-        <div class="bar"><i style="width:${v}%"></i></div>
-      </div>
-    `);
+    box.insertAdjacentHTML('beforeend',
+      `<div class="barRow"><div class="small">${d.label}</div><div class="bar"><i style="width:${v}%"></i></div></div>`
+    );
   });
 }
 
@@ -352,6 +491,9 @@ function buildResult(){
   const audience = $('#q_audience').value;
   const tone = $('#q_tone').value;
   const ban = $('#q_ban').value;
+  const brand = $('#q_brand').value;
+  const visual = $('#q_visual').value;
+  const energy = $('#q_energy').value;
 
   // 태그/요약
   $('#tagIndustry').textContent = '#'+$('#q_industry').selectedOptions[0].textContent;
@@ -361,31 +503,36 @@ function buildResult(){
   $('#tagTone').textContent = '#'+$('#q_tone').selectedOptions[0].textContent;
   $('#tagBan').textContent = (ban==='none'?'#제약 없음':'#'+$('#q_ban').selectedOptions[0].textContent);
 
-  const moodScores = scoreMood({industry,goal,platform,audience,tone});
+  const moodScores = scoreMood({industry,goal,platform,audience,tone,brand,visual,energy});
   const moodKey = moodScores.winner;
-  const moodLabel = MOOD_INFO[moodKey].label;
-  $('#tagMood').textContent = '#무드: ' + moodLabel;
+  const mood = MOOD_INFO[moodKey];
 
-  const summary = `산업군·목적·플랫폼·타겟·톤을 바탕으로 무드를 자동 판정했어요. 
-  결과 무드는 <b>${moodLabel}</b>. 이 무드에 맞춰 팔레트·타이포·그리드가 추천됩니다.`;
-  $('#summaryText').innerHTML = summary;
+  // 요약/무드
+  $('#summaryText').innerHTML =
+    `선택한 조건을 바탕으로 <b>${mood.label}</b> 무드가 가장 적합해요. 이 무드 기준으로 팔레트·서체·레이아웃을 제안합니다.`;
+  $('#moodTitle').innerHTML = `#무드 추천 · ${mood.label}`;
+  const mt = $('#moodTags'); mt.innerHTML='';
+  mood.tags.forEach(t=>mt.insertAdjacentHTML('beforeend', `<span class="tag">${t}</span>`));
 
-  // 팔레트 + 접근성
-  let pal = [...MOOD_INFO[moodKey].colors];
-  if(ban==='noNeon' && (moodKey==='pop'||moodKey==='tech')){ // 제약 반영: 네온 금지 ⇒ 채도 낮춤
-    pal = pal.map((hex,i)=> i===1||i===2 ? '#64748b' : hex);
-  }
+  // 팔레트 + 제약/가독성 문구
+  let pal = [...mood.colors];
+  if(ban==='noNeon' && (moodKey==='pop'||moodKey==='tech')){ pal = pal.map((hex,i)=> i===1||i===2 ? '#64748b' : hex); }
   drawSwatches(pal);
   const bg = pal[pal.length-1], fg = '#111111';
   const ratio = contrast(bg, fg);
-  $('#contrastNote').textContent = `배경 ${bg} 대비 텍스트 #111 명도 대비: ${ratio.toFixed(2)}:1 (AA 권고 ≥ 4.5)`;
+  const label = ratio>=7 ? '가독성: 매우 우수' : ratio>=4.5 ? '가독성: 우수' : '가독성: 보통';
+  $('#contrastNote').textContent = label;
   $('#meter').style.width = Math.min(100,(ratio/7)*100)+'%';
 
-  // 미리보기
-  $('#heroPrev').style.background = bg;
-  $('#heroPrev').style.color = (ratio>=4.5? '#111':'#fff');
-  $('#heroChip1').textContent = (goal==='conversion'?'강한 CTA 배치':'정보 우선');
-  $('#heroChip2').textContent = (platform==='sns'?'세이프 존 확보':'정렬/여백 균형');
+  // 카피 & CTA / 이미지 방향
+  const ctas = CTA_BY_GOAL[goal]||CTA_BY_GOAL.awareness;
+  $('#copyList').innerHTML = `
+    <li>카피 톤: <b>${$('#q_tone').selectedOptions[0].textContent}</b></li>
+    <li>권장 CTA: <b>${ctas[Math.floor(Math.random()*ctas.length)]}</b></li>
+    <li>메시지 결: <b>${goal==='conversion'?'직접/행동 지향':'정보/스토리 지향'}</b></li>
+  `;
+  const imgs = INDUSTRY_IMAGERY[industry] || [];
+  $('#imageList').innerHTML = imgs.map(x=>`<li>${x}</li>`).join('');
 
   // 타이포
   const [body, head, rule] = typoRecommend(audience, tone);
@@ -393,21 +540,37 @@ function buildResult(){
     <li>본문: <b>${body}</b></li>
     <li>헤드라인: <b>${head}</b></li>
     <li>${rule}</li>
-    <li>명도 대비 준수(AA 기준), 가독성 중심 세팅</li>
   `;
+  $('#typeAccess').textContent = (ratio>=7?'웹 접근성: 매우 우수': ratio>=4.5?'웹 접근성: 우수':'웹 접근성: 보통');
 
   // 그리드
   const grids = GRID_BY_PLATFORM[platform] || GRID_BY_PLATFORM.web;
   $('#gridList').innerHTML = grids.map(g=>`<li>${g}</li>`).join('');
 
+  // 레이아웃 미리보기: 용도에 따라 비율 세트 조정
+  const rl = $('#ratioLine'); rl.innerHTML='';
+  const ratios = platform==='sns' ? ['1:1','4:5','16:9'] :
+                 platform==='poster' ? ['4:5','1:1','16:9'] :
+                 ['16:9','4:5','1:1'];
+  ratios.forEach(r=> rl.insertAdjacentHTML('beforeend', `<div class="ratio" data-r="${r}"><div class="inner"></div><label>${r}</label></div>`));
+
   // 그래프
-  drawBars({winner:moodKey});
+  drawBars(moodKey, tone);
 }
 
 /* =========================
-   네비게이션
+   검증/네비게이션/모달
 ========================= */
+function validateAll(){
+  const ids = ['#q_industry','#q_goal','#q_platform','#q_audience','#q_tone','#q_ban','#q_brand','#q_visual','#q_energy'];
+  return ids.every(id => $(id).value !== '-');
+}
+const modal = $('#modal');
+function openModal(){ modal.style.display='grid'; }
+function closeModal(){ modal.style.display='none'; }
+
 $('#goResult').onclick=()=>{
+  if(!validateAll()){ openModal(); return; }
   buildResult();
   $('#screen-ask').style.display='none';
   $('#screen-result').style.display='';
