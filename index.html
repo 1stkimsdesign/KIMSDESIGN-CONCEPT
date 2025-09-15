@@ -65,7 +65,7 @@
   .compact ul{font-size:13px; line-height:1.6; margin:6px 0 0 18px}
   .compact p, .compact .small{font-size:12px}
 
-  /* 레이아웃 비율 추천(정확 비율 + 추천 강조) */
+  /* 레이아웃 비율(정확 비율 + 추천 강조) */
   .previewLine{display:flex;gap:12px;align-items:center;flex-wrap:nowrap;overflow-x:auto}
   .ratio{
     flex:0 0 auto; width:108px; height:72px; border:1px solid var(--line); border-radius:12px;
@@ -97,7 +97,10 @@
   }
 
   /* 동기 그래프만 살짝 두껍게 */
-  #motiveCard .bar{height:14px}
+  #personaCard .motive .bar{height:14px}
+
+  /* 푸터 */
+  footer{margin:24px auto 40px; text-align:center; font-size:11px; color:#9ca3af}
 </style>
 </head>
 <body>
@@ -208,7 +211,7 @@
         </select><p class="small">대담함·색채 강도</p>
       </div>
 
-      <!-- ⑩ 페르소나 선택/입력 (강화: 라이프스타일/동기 선택 추가) -->
+      <!-- ⑩ 페르소나 선택/입력 -->
       <div class="card">
         <h3>⑩ 페르소나</h3>
         <div class="row">
@@ -236,11 +239,7 @@
             <input id="ps_goal" placeholder="목표(예: 전환율 향상, 인지도…)" />
           </div>
           <input id="ps_pain" placeholder="Pain Point(예: 첫 화면 이탈, 가치전달 지연…)" style="margin-top:8px" />
-
-          <!-- 추가: 라이프스타일 / 동기 유형 -->
-          <textarea id="ps_life" rows="3" placeholder="라이프스타일(예: 주말엔 전시·카페, 릴스 자주 시청, 온라인 구매 선호)"
-            style="margin-top:8px"></textarea>
-
+          <textarea id="ps_life" rows="3" placeholder="라이프스타일(예: 주말엔 전시·카페, 릴스 자주 시청, 온라인 구매 선호)" style="margin-top:8px"></textarea>
           <select id="ps_motive" style="margin-top:8px">
             <option value="">주요 동기 유형 선택(선택)</option>
             <option value="achievement">성취/성과</option>
@@ -290,24 +289,26 @@
           </div>
         </div>
 
-        <!-- 페르소나 (세분화) -->
+        <!-- 페르소나 (라이프스타일/동기 통합) -->
         <div class="card" id="personaCard">
           <h3>🧑‍🎨 핵심 페르소나</h3>
           <div class="row" id="personaHeader" style="gap:8px;margin-top:4px"></div>
           <ul id="personaPoints" style="margin:8px 0 0 18px; line-height:1.65; font-size:13px"></ul>
+
+          <!-- 라이프스타일(본문 크기 동일, 내용 풍부) -->
+          <div class="card" style="margin-top:10px; background:#fafafa">
+            <h3>🏡 라이프스타일</h3>
+            <p id="lifeText" style="font-size:13px; line-height:1.7; margin-top:6px"></p>
+          </div>
+
+          <!-- 동기부여 그래프 -->
+          <div class="card motive" style="margin-top:10px; background:#fafafa">
+            <h3>🎯 동기부여</h3>
+            <div class="bars" id="motiveBars" style="margin-top:8px"></div>
+            <p class="small" id="motiveNote" style="margin-top:8px"></p>
+          </div>
+
           <div class="small" id="personaImp" style="margin-top:8px"></div>
-        </div>
-
-        <!-- 추가: 라이프스타일 / 동기부여 -->
-        <div class="card" id="lifeCard">
-          <h3>🏡 라이프스타일</h3>
-          <p id="lifeText" style="margin-top:6px"></p>
-        </div>
-
-        <div class="card" id="motiveCard">
-          <h3>🎯 동기부여</h3>
-          <div class="bars" id="motiveBars" style="margin-top:8px"></div>
-          <p class="small" id="motiveNote" style="margin-top:8px"></p>
         </div>
 
         <!-- 컬러 -->
@@ -330,7 +331,7 @@
         </div>
 
         <div class="card compact">
-          <h3>📐 레이아웃 비율 추천</h3>
+          <h3>📐 레이아웃 가이드</h3>
           <ul id="gridList"></ul>
           <div class="small" style="margin-top:8px">비율 가이드</div>
           <div class="previewLine" id="ratioLine"></div>
@@ -349,7 +350,7 @@
     </div>
   </section>
 
-  <footer>※ 김씨네디자인실 자체 제작 콘텐츠 — 무단 복제 및 배포 금지</footer>
+  <footer>※ 김씨네디자인실 · 본 툴은 로컬 환경에서만 동작하며 입력 데이터는 저장되지 않습니다.</footer>
 </div>
 
 <!-- 모달: 필수 체크 -->
@@ -405,29 +406,29 @@ const MOOD_INFO = {
 
 /* ---------- 가이드/타이포 ---------- */
 const LAYOUT_GUIDE = {
-  web:[
-    '히어로: 핵심 문구 5–8단어 + CTA 1개',
-    '라인 길이 45–75자 / 섹션 간 48–72px',
-    '리드 16–18px, 카드형 리스트로 덩어리화',
-    '폼/다운로드는 1차 CTA와 그룹화'
+  web: [
+    '타이포 묶음은 좌측 정렬 권장(정보 이해가 목표일 때). 단, 영웅 이미지 중심이면 중앙 정렬로 균형.',
+    '헤드라인 1개 + 서브타이틀 1개 + 본문 2~3줄 수준으로 요약, 문단 수를 줄여 스캔 속도 확보.',
+    '비주얼과 타이틀 간 대비는 과도하게 세지 않도록(배경/텍스트 모두 극단 금지).',
+    'CTA는 1차/2차 구분(색상·굵기·테두리)하고 첫 스크롤 안에 배치.'
   ],
-  app:[
-    '컴포넌트 반복(카드/리스트/버튼)로 리듬 유지, 터치 최소 44px',
-    '상·하단 네비 중심 흐름, 중첩 모달 최소화',
-    '본문 15–17px / 상태 피드백 명료화',
-    '키 액션은 하단 고정 CTA'
+  app: [
+    '터치 대상은 최소 44px 이상 간격을 유지하고, 버튼·리스트 등 컴포넌트 반복으로 리듬 확보.',
+    '중앙 정렬 문안은 1~2줄 내에서만, 설명/도움말은 좌측 정렬로 가독성 유지.',
+    '상태 변화(로딩/성공/오류) 피드백 문구와 아이콘을 가까이 배치.',
+    '가장 중요한 액션은 하단 고정 CTA로 일관성 유지.'
   ],
-  sns:[
-    '슬라이드 20–40자 / 10장 기준 1–2 메시지',
-    '텍스트:이미지 6:4~4:6 / 첫 장은 썸네일',
-    '템플릿(타이틀/바디/출처) 통일',
-    '세이프 존 60px / 번호·진행바 제공'
+  sns: [
+    '첫 장은 “썸네일 역할”로 브랜드/핵심 주장을 즉시 인지 가능하게(단어 수보다 구조가 중요).',
+    '슬라이드별 메시지는 하나로 제한, 시각 요소는 반복 패턴으로 통일(타이틀/바디/출처).',
+    '텍스트는 좌측 정렬이 안전. 중앙 정렬은 타이틀·숏 카피에만 제한적으로 사용.',
+    '이미지와 텍스트는 충돌 없이 여백으로 분리, CTA/해시태그는 마지막 장에 수렴.'
   ],
-  poster:[
-    '키 메시지 5–7단어 / 정보 계층화(장소·일시·문의)',
-    '원거리·근거리 시나리오 분리',
-    'QR/URL 대비 확보 / 미세 여백 유도',
-    '인쇄 여분 3mm / 이미지 200–300ppi'
+  poster: [
+    '12컬럼 그리드, 베이스라인으로 정보 블록을 맞추고 원거리/근거리 가독성 시나리오 분리.',
+    '키 메시지는 5~7단어로 압축, 장소·일시·문의는 한 묶음으로 계층화.',
+    'QR/URL은 바닥부 대비 확보, 이미지/텍스트 주변에 미세 여백으로 호흡 제공.',
+    '인쇄 여분 3mm, 이미지 200~300ppi 준비(로고는 벡터).'
   ]
 };
 
@@ -459,9 +460,8 @@ function validateAll(){
   return ids.every(id => $(id).value !== '-');
 }
 function resetForm(){
-  ['q_industry','q_goal','q_platform','q_audience','q_tone','q_ban','q_brand','q_visual','q_energy']
-    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value='-'; });
-  // persona toggle reset
+  ['q_industry','q_goal','q_platform','q_audience','q_tone','q_ban','q_brand','#q_visual','#q_energy']
+    .forEach(id=>{ const el=document.querySelector(id); if(el) el.value='-'; });
   btnAuto.classList.remove('active'); btnManual.classList.remove('active');
   ps_form.style.display='none'; personaMode='auto';
 }
@@ -573,16 +573,19 @@ function buildPersonaFinal(ctx){
   return {headerTags, bullets, implication};
 }
 
-/* ========== 라이프스타일 자동 유추 ========== */
+/* ========== 라이프스타일 자동 유추 (풍부한 문장) ========== */
 function genLifestyleAuto(ctx){
   const ch = (ctx.platform==='sns')
-            ? 'SNS(인스타·틱톡) 중심 소비, 릴스/숏폼 시청'
-            : (ctx.platform==='web' ? '검색/유튜브 기반 정보 탐색' : '오프라인 경험과 병행');
-  const shop = (ctx.goal==='conversion') ? '가격·혜택 비교 후 모바일 결제 선호'
-             : (ctx.goal==='education') ? '기사·리뷰·케이스 탐독' : '이벤트/캠페인 참여 경험';
-  const vis = (ctx.visual==='photo') ? '실사 이미지의 신뢰를 중시' : '개념을 빠르게 잡는 일러스트/아이콘 선호';
-  const tempo = (ctx.energy==='dynamic') ? '빠른 템포의 정보 소비, 첫 화면 임팩트 선호' : '차분한 템포, 세부 정보 확인';
-  return `${ch}. ${shop}. ${vis}. ${tempo}.`;
+            ? 'SNS(인스타·틱톡)에서 신제품·트렌드 정보를 받아들이고 릴스/숏폼으로 빠르게 탐색'
+            : (ctx.platform==='web' ? '검색·유튜브 리뷰를 기반으로 체계적으로 정보를 수집' : '현장 경험과 온라인 정보를 병행');
+  const shop = (ctx.goal==='conversion') ? '가격·혜택을 비교한 뒤 모바일로 손쉽게 결제' :
+               (ctx.goal==='education') ? '기사·리뷰·케이스를 찬찬히 탐독하고 저장' : '이벤트·캠페인에 참여하며 브랜드를 경험';
+  const vis = (ctx.visual==='photo') ? '실사 이미지의 신뢰와 증거 데이터를 중시' : '개념을 명확히 설명하는 일러스트·아이콘을 선호';
+  const tempo = (ctx.energy==='dynamic') ? '빠른 템포의 정보 소비를 선호하며 첫 화면 임팩트를 중시' : '차분한 템포로 세부 정보 확인에 시간을 쓴다';
+  const taste = (ctx.tone==='bold') ? '대비가 분명하고 포인트가 명확한 디자인에 반응' :
+                 (ctx.tone==='trust') ? '정제·일관된 톤과 높은 가독성을 선호' :
+                 (ctx.tone==='friendly') ? '밝고 친근한 문장과 부드러운 색을 선호' : '따뜻한 휴먼 톤과 스토리텔링을 선호';
+  return `${ch}. ${shop}. ${vis}. ${tempo}. 또한 ${taste}. 필요 정보는 ‘핵심→근거→행동’ 순서로 제시될 때 가장 설득된다.`;
 }
 
 /* ========== 동기부여 스코어 ========== */
@@ -761,10 +764,10 @@ function buildResult(){
   const persona = buildPersonaFinal({industry,goal,platform,audience,tone,brand,visual,energy,moodKey});
   const ph=$('#personaHeader'); ph.innerHTML=''; persona.headerTags.forEach(t=>ph.insertAdjacentHTML('beforeend',`<span class="tag">${t}</span>`));
   $('#personaPoints').innerHTML = persona.bullets.map(x=>`<li>${x}</li>`).join('');
-  $('#personaImp').innerHTML = persona.implication;
 
-  // 라이프스타일 + 동기부여(그래프)
+  // 라이프스타일 + 동기부여(그래프) — 페르소나 내부
   renderLifestyleAndMotive({industry,goal,platform,audience,tone,brand,visual,energy});
+  $('#personaImp').innerHTML = persona.implication;
 
   // 팔레트 + 대비
   let pal=[...(mood.colors||['#111827','#2563eb','#e5e7eb','#0ea5e9','#f8fafc'])];
@@ -781,9 +784,9 @@ function buildResult(){
   $('#typoList').innerHTML = `<li>본문: <b>${body}</b></li><li>헤드라인: <b>${head}</b></li><li>${rule}</li>`;
   $('#typeAccess').textContent = label.replace('가독성','웹 접근성');
 
-  // 레이아웃 가이드 + 비율 추천
-  const guide=LAYOUT_GUIDE[platform]||LAYOUT_GUIDE.web;
-  $('#gridList').innerHTML=guide.map(g=>`<li>${g}</li>`).join('');
+  // 레이아웃 가이드(플랫폼별 직관 지침)
+  const baseGuide = LAYOUT_GUIDE[platform]||LAYOUT_GUIDE.web;
+  $('#gridList').innerHTML = baseGuide.map(g=>`<li>${g}</li>`).join('');
   const ratios=['1:1','4:5','16:9'];
   const active=recommendRatios(platform,goal,tone);
   renderRatioPreview(ratios,active);
@@ -825,7 +828,7 @@ document.getElementById('goResult').onclick=()=>{
 };
 
 document.getElementById('back').onclick=()=>{
-  resetForm();
+  // 초기화 + 첫 화면
   document.getElementById('screen-result').style.display='none';
   document.getElementById('screen-ask').style.display='';
   window.scrollTo({top:0,behavior:'smooth'});
