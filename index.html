@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>🎁 디자인 컨셉 기획 생성기</title>
-<meta name="description" content="산업/목적/용도/타겟/톤/제약/브랜드/이미지/에너지 + 페르소나 → 무드/컬러/서체/레이아웃/구성비율 자동 추천">
+<meta name="description" content="산업/목적/용도/타겟/톤/제약/브랜드/이미지/에너지 + 페르소나 → 무드·컬러·서체·레이아웃·구성비율 자동 추천">
 <style>
   :root{
     --bg:#fff; --fg:#0b0b0c; --muted:#6b7280; --line:#e5e7eb; --card:#f8fafc;
@@ -52,7 +52,6 @@
   .bar{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden}
   .bar>i{display:block;height:100%;background:linear-gradient(90deg,#60a5fa,#22d3ee)}
 
-  /* 요약 카드 내부 무드 강조 박스 */
   .moodBox{
     margin-top:10px; border:1px solid var(--line); border-radius:14px; padding:12px;
     background:linear-gradient(135deg,#eff6ff 0%, #fff 45%, #fdf2f8 100%);
@@ -61,11 +60,9 @@
   .moodTitle{font-size:20px;font-weight:900;margin-bottom:6px}
   .moodTags{display:flex;gap:8px;flex-wrap:wrap}
 
-  /* 컴팩트 텍스트 카드 */
   .compact ul{font-size:13px; line-height:1.6; margin:6px 0 0 18px}
   .compact p, .compact .small{font-size:12px}
 
-  /* 레이아웃 비율(정확 비율 + 추천 강조) */
   .previewLine{display:flex;gap:12px;align-items:center;flex-wrap:nowrap;overflow-x:auto}
   .ratio{
     flex:0 0 auto; width:108px; height:72px; border:1px solid var(--line); border-radius:12px;
@@ -78,11 +75,9 @@
   }
   .ratio label{position:absolute; bottom:4px; left:0; right:0; text-align:center; font-size:11px; color:#334155}
 
-  /* 모달 */
   .modal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.35); z-index:50}
   .modal .box{background:#fff; border-radius:14px; padding:16px 18px; width:min(380px,92vw); box-shadow:0 10px 30px rgba(0,0,0,.2)}
 
-  /* 로딩 오버레이 */
   .loading{position:fixed; inset:0; display:none; place-items:center; background:rgba(255,255,255,.9); z-index:60}
   .spinner{
     width:52px; height:52px; border:6px solid #e5e7eb; border-top-color:#60a5fa; border-radius:50%;
@@ -96,11 +91,21 @@
     body{background:#fff}
   }
 
-  /* 동기 그래프만 살짝 두껍게 */
   #personaCard .motive .bar{height:14px}
 
-  /* 푸터 */
   footer{margin:24px auto 40px; text-align:center; font-size:11px; color:#9ca3af}
+
+  /* ===== 인트로(첫 로드) 오버레이 ===== */
+  #introOverlay{
+    position:fixed; inset:0; display:none; place-items:center;
+    background:rgba(0,0,0,.45); backdrop-filter:blur(6px); z-index:70;
+  }
+  #introOverlay .introBox{
+    width:min(520px,92vw); background:#fff; border-radius:16px; border:1px solid var(--line);
+    padding:22px 20px; box-shadow:0 18px 40px rgba(0,0,0,.25);
+  }
+  #introOverlay h3{margin:0 0 8px 0}
+  #introOverlay p{margin:8px 0; color:#334155; line-height:1.6}
 </style>
 </head>
 <body>
@@ -282,26 +287,23 @@
             <span class="tag" id="tagBan">#제약</span>
           </div>
           <p class="small" id="summaryText" style="margin-top:8px"></p>
-          <!-- 무드 강조 -->
           <div class="moodBox">
             <div class="moodTitle" id="moodTitle">무드 자동 판정</div>
             <div class="moodTags" id="moodTags"></div>
           </div>
         </div>
 
-        <!-- 페르소나 (라이프스타일/동기 통합) -->
+        <!-- 페르소나 -->
         <div class="card" id="personaCard">
           <h3>🧑‍🎨 핵심 페르소나</h3>
           <div class="row" id="personaHeader" style="gap:8px;margin-top:4px"></div>
           <ul id="personaPoints" style="margin:8px 0 0 18px; line-height:1.65; font-size:13px"></ul>
 
-          <!-- 라이프스타일(본문 크기 동일, 내용 풍부) -->
           <div class="card" style="margin-top:10px; background:#fafafa">
             <h3>🏡 라이프스타일</h3>
             <p id="lifeText" style="font-size:13px; line-height:1.7; margin-top:6px"></p>
           </div>
 
-          <!-- 동기부여 그래프 -->
           <div class="card motive" style="margin-top:10px; background:#fafafa">
             <h3>🎯 동기부여</h3>
             <div class="bars" id="motiveBars" style="margin-top:8px"></div>
@@ -375,6 +377,22 @@
   </div>
 </div>
 
+<!-- 인트로(첫 로드) 오버레이 -->
+<div id="introOverlay">
+  <div class="introBox">
+    <h3>🔒 안내</h3>
+    <p>
+      본 생성기는 <b>디자인 용어 대백과 프로젝트</b> 기반으로 자체 제작된 리워드입니다.
+      제안 결과는 학습을 돕기 위한 <b>참고 가이드</b>이며, 법적 보증이나 성능을 보장하지 않습니다.
+      최종 결정은 프로젝트 맥락과 팀 기준에 따라 조정해 주세요.
+    </p>
+    <p class="small">입력된 내용은 로컬에서만 처리되며 서버에 저장되지 않습니다.</p>
+    <div class="row" style="justify-content:flex-end;margin-top:10px">
+      <button class="btn primary" id="introStart">시작하기</button>
+    </div>
+  </div>
+</div>
+
 <!-- 로딩 오버레이 -->
 <div class="loading" id="loading">
   <div>
@@ -426,9 +444,9 @@ const LAYOUT_GUIDE = {
   ],
   poster: [
     '12컬럼 그리드, 베이스라인으로 정보 블록을 맞추고 원거리/근거리 가독성 시나리오 분리.',
-    '키 메시지는 5~7단어로 압축, 장소·일시·문의는 한 묶음으로 계층화.',
+    '키 메시지는 5–7단어로 압축, 장소·일시·문의는 한 묶음으로 계층화.',
     'QR/URL은 바닥부 대비 확보, 이미지/텍스트 주변에 미세 여백으로 호흡 제공.',
-    '인쇄 여분 3mm, 이미지 200~300ppi 준비(로고는 벡터).'
+    '인쇄 여분 3mm, 이미지 200–300ppi 준비(로고는 벡터).'
   ]
 };
 
@@ -445,25 +463,32 @@ const TYPO_POOL = {
   ]
 };
 
-/* ---------- 색 대비 유틸 ---------- */
+/* ---------- 대비 ---------- */
 function hexToRgb(hex){hex=hex.replace('#',''); if(hex.length===3) hex=[hex[0],hex[0],hex[1],hex[1],hex[2],hex[2]].join(''); const num=parseInt(hex,16); return {r:(num>>16)&255,g:(num>>8)&255,b:num&255}}
 function luminance({r,g,b}){const s=[r/255,g/255,b/255].map(v=>v<=0.03928?v/12.92:((v+0.055)/1.055)**2.4);return 0.2126*s[0]+0.7152*s[1]+0.0722*s[2]}
 function contrast(hex1,hex2){const L1=luminance(hexToRgb(hex1)),L2=luminance(hexToRgb(hex2));const[a,b]=L1>L2?[L1,L2]:[L2,L1];return (a+0.05)/(b+0.05)}
 
-/* ---------- 검증/모달 ---------- */
-const modalRequire = $('#modalRequire');
-const modalAuto = $('#modalAuto');
+/* ---------- 모달/검증 ---------- */
 function openModal(id){ document.getElementById(id).style.display='grid'; }
 function closeModal(id){ document.getElementById(id).style.display='none'; }
 function validateAll(){
-  const ids=['#q_industry','#q_goal','#q_platform','#q_audience','#q_tone','#q_ban','#q_brand','#q_visual','#q_energy'];
-  return ids.every(id => $(id).value !== '-');
+  const selects = document.querySelectorAll('#screen-ask select');
+  for(const s of selects){ if(s.value==='-') return false; }
+  return true;
 }
+
+/* ---------- 초기화 ---------- */
 function resetForm(){
-  ['q_industry','q_goal','q_platform','q_audience','q_tone','q_ban','q_brand','#q_visual','#q_energy']
-    .forEach(id=>{ const el=document.querySelector(id); if(el) el.value='-'; });
-  btnAuto.classList.remove('active'); btnManual.classList.remove('active');
-  ps_form.style.display='none'; personaMode='auto';
+  // 모든 select 초기화
+  document.querySelectorAll('#screen-ask select').forEach(s=>s.value='-');
+  // 수동 페르소나 입력값 초기화
+  ['ps_name','ps_age','ps_role','ps_channels','ps_style','ps_goal','ps_pain','ps_life','ps_motive']
+    .forEach(id=>{ const el=document.getElementById(id); if(!el) return; if(el.tagName==='SELECT') el.value=''; else el.value=''; });
+  // 토글/모드 초기화(모달은 띄우지 않음)
+  personaMode='auto';
+  btnAuto.classList.remove('active');
+  btnManual.classList.remove('active');
+  ps_form.style.display='none';
 }
 
 /* ---------- 무드 스코어 ---------- */
@@ -524,7 +549,7 @@ function scoreMood({industry,goal,platform,audience,tone,brand,visual,energy}){
   return {winner: entries[0][0], scores: s};
 }
 
-/* ---------- 페르소나 생성(자동/수동 병합) ---------- */
+/* ---------- 페르소나 ---------- */
 function buildPersonaAuto(ctx){
   const names=['김하늘','박민수','이서윤','정우진','최다은','오지후','강수민','유민서','윤도현','한가은'];
   const name=names[Math.floor(Math.random()*names.length)];
@@ -573,7 +598,7 @@ function buildPersonaFinal(ctx){
   return {headerTags, bullets, implication};
 }
 
-/* ========== 라이프스타일 자동 유추 (풍부한 문장) ========== */
+/* ---------- 라이프스타일/동기 ---------- */
 function genLifestyleAuto(ctx){
   const ch = (ctx.platform==='sns')
             ? 'SNS(인스타·틱톡)에서 신제품·트렌드 정보를 받아들이고 릴스/숏폼으로 빠르게 탐색'
@@ -587,8 +612,6 @@ function genLifestyleAuto(ctx){
                  (ctx.tone==='friendly') ? '밝고 친근한 문장과 부드러운 색을 선호' : '따뜻한 휴먼 톤과 스토리텔링을 선호';
   return `${ch}. ${shop}. ${vis}. ${tempo}. 또한 ${taste}. 필요 정보는 ‘핵심→근거→행동’ 순서로 제시될 때 가장 설득된다.`;
 }
-
-/* ========== 동기부여 스코어 ========== */
 function calcMotivation(ctx){
   const s = {achievement:50, security:50, belong:50, autonomy:50, growth:50};
   if(ctx.goal==='conversion'){ s.achievement+=20; s.security+=5; }
@@ -637,7 +660,7 @@ function renderLifestyleAndMotive(ctx){
     `주요 동기: ${top}. 메시지는 이 축을 자극하도록 설계하세요.`;
 }
 
-/* ---------- 타이포 추천 ---------- */
+/* ---------- 타이포 ---------- */
 function typoRecommend(audience,tone){
   const pick = (arr,bias=0)=>arr[(Math.floor(Math.random()*arr.length)+bias)%arr.length];
   let body='Pretendard', head='Montserrat';
@@ -656,7 +679,7 @@ function typoRecommend(audience,tone){
   return [body+' (가독성 16–18px)', head+' (강조/헤드라인)', guide];
 }
 
-/* ---------- 성향/구성 비율 그래프 ---------- */
+/* ---------- 그래프 ---------- */
 function drawBars(moodKey,tone){
   const dims=[
     {key:'aesth',label:'심미성'},{key:'read',label:'가독성'},
@@ -706,10 +729,10 @@ function drawComposition(platform,goal){
   });
 }
 
-/* ---------- 팔레트/대비/스와치 ---------- */
+/* ---------- 팔레트 ---------- */
 function drawSwatches(pal){ const box=$('#swatches'); box.innerHTML=''; pal.forEach(c=>{box.insertAdjacentHTML('beforeend',`<div class="c"><div style="background:${c}"></div><span>${c.toUpperCase()}</span></div>`);}); }
 
-/* ---------- 레이아웃 비율(정확/추천) ---------- */
+/* ---------- 비율 프리뷰 ---------- */
 function renderRatioPreview(ratios, activeSet=new Set()){
   const line = $('#ratioLine'); line.innerHTML='';
   ratios.forEach(r=>{
@@ -719,6 +742,7 @@ function renderRatioPreview(ratios, activeSet=new Set()){
     const lab=document.createElement('label'); lab.textContent=r;
     el.appendChild(inner); el.appendChild(lab); line.appendChild(el);
   });
+  // 크기 계산
   line.querySelectorAll('.ratio').forEach(box=>{
     let w=box.clientWidth-16, h=box.clientHeight-16;
     if(w<=0||h<=0){ w=92; h=56; }
@@ -765,7 +789,6 @@ function buildResult(){
   const ph=$('#personaHeader'); ph.innerHTML=''; persona.headerTags.forEach(t=>ph.insertAdjacentHTML('beforeend',`<span class="tag">${t}</span>`));
   $('#personaPoints').innerHTML = persona.bullets.map(x=>`<li>${x}</li>`).join('');
 
-  // 라이프스타일 + 동기부여(그래프) — 페르소나 내부
   renderLifestyleAndMotive({industry,goal,platform,audience,tone,brand,visual,energy});
   $('#personaImp').innerHTML = persona.implication;
 
@@ -784,7 +807,7 @@ function buildResult(){
   $('#typoList').innerHTML = `<li>본문: <b>${body}</b></li><li>헤드라인: <b>${head}</b></li><li>${rule}</li>`;
   $('#typeAccess').textContent = label.replace('가독성','웹 접근성');
 
-  // 레이아웃 가이드(플랫폼별 직관 지침)
+  // 레이아웃
   const baseGuide = LAYOUT_GUIDE[platform]||LAYOUT_GUIDE.web;
   $('#gridList').innerHTML = baseGuide.map(g=>`<li>${g}</li>`).join('');
   const ratios=['1:1','4:5','16:9'];
@@ -828,12 +851,27 @@ document.getElementById('goResult').onclick=()=>{
 };
 
 document.getElementById('back').onclick=()=>{
-  // 초기화 + 첫 화면
+  // 초기화 + 첫 화면 (인트로 모달은 다시 띄우지 않음)
+  resetForm();
   document.getElementById('screen-result').style.display='none';
   document.getElementById('screen-ask').style.display='';
   window.scrollTo({top:0,behavior:'smooth'});
 };
 document.getElementById('print').onclick=()=>window.print();
+
+/* ---------- 첫 로드 인트로 ---------- */
+const introOverlay = document.getElementById('introOverlay');
+const introStart   = document.getElementById('introStart');
+(function showIntroOnce(){
+  const seen = sessionStorage.getItem('introSeen');
+  if(!seen){
+    introOverlay.style.display='grid';
+  }
+})();
+introStart.addEventListener('click', ()=>{
+  introOverlay.style.display='none';
+  sessionStorage.setItem('introSeen','1');
+});
 </script>
 </body>
 </html>
