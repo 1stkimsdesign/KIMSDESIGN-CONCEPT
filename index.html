@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>🎁 디자인 컨셉 기획 생성기</title>
-<meta name="description" content="산업/목적/용도/타겟/톤/제약/브랜드/이미지/에너지 + 페르소나 → 무드/컬러/서체/레이아웃/구성비율/페르소나 자동 생성">
+<meta name="description" content="산업/목적/용도/타겟/톤/제약/브랜드/이미지/에너지 + 페르소나 → 무드/컬러/서체/레이아웃/구성비율 자동 추천">
 <style>
   :root{
     --bg:#fff; --fg:#0b0b0c; --muted:#6b7280; --line:#e5e7eb; --card:#f8fafc;
@@ -21,7 +21,7 @@
   .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
   h1,h2,h3{margin:0 0 8px 0}
   p{margin:6px 0}
-  select, input{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  select, input, textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .btn{padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(#fff,#f3f4f6);cursor:pointer}
   .btn.primary{
@@ -95,6 +95,9 @@
     .btn{display:none}
     body{background:#fff}
   }
+
+  /* 동기 그래프만 살짝 두껍게 */
+  #motiveCard .bar{height:14px}
 </style>
 </head>
 <body>
@@ -205,7 +208,7 @@
         </select><p class="small">대담함·색채 강도</p>
       </div>
 
-      <!-- ⑩ 페르소나 선택/입력 -->
+      <!-- ⑩ 페르소나 선택/입력 (강화: 라이프스타일/동기 선택 추가) -->
       <div class="card">
         <h3>⑩ 페르소나</h3>
         <div class="row">
@@ -232,7 +235,20 @@
             </select>
             <input id="ps_goal" placeholder="목표(예: 전환율 향상, 인지도…)" />
           </div>
-          <input id="ps_pain" placeholder="Pain Point(예: 첫 장 이탈, 가치전달 지연…)" style="margin-top:8px" />
+          <input id="ps_pain" placeholder="Pain Point(예: 첫 화면 이탈, 가치전달 지연…)" style="margin-top:8px" />
+
+          <!-- 추가: 라이프스타일 / 동기 유형 -->
+          <textarea id="ps_life" rows="3" placeholder="라이프스타일(예: 주말엔 전시·카페, 릴스 자주 시청, 온라인 구매 선호)"
+            style="margin-top:8px"></textarea>
+
+          <select id="ps_motive" style="margin-top:8px">
+            <option value="">주요 동기 유형 선택(선택)</option>
+            <option value="achievement">성취/성과</option>
+            <option value="security">안전/위험회피</option>
+            <option value="belong">소속/공감</option>
+            <option value="autonomy">자율/탐험</option>
+            <option value="growth">성장/자기계발</option>
+          </select>
         </div>
         <p class="small" style="margin-top:8px">※ 수동 입력은 점수에 영향 없이 결과지에 그대로 반영됩니다.</p>
       </div>
@@ -282,6 +298,18 @@
           <div class="small" id="personaImp" style="margin-top:8px"></div>
         </div>
 
+        <!-- 추가: 라이프스타일 / 동기부여 -->
+        <div class="card" id="lifeCard">
+          <h3>🏡 라이프스타일</h3>
+          <p id="lifeText" style="margin-top:6px"></p>
+        </div>
+
+        <div class="card" id="motiveCard">
+          <h3>🎯 동기부여</h3>
+          <div class="bars" id="motiveBars" style="margin-top:8px"></div>
+          <p class="small" id="motiveNote" style="margin-top:8px"></p>
+        </div>
+
         <!-- 컬러 -->
         <div class="card">
           <h3>🎨 컬러 팔레트</h3>
@@ -308,7 +336,6 @@
           <div class="previewLine" id="ratioLine"></div>
         </div>
 
-        <!-- 복구: 구성 비율 그래프 -->
         <div class="card">
           <h3>📊 구성 비율(이미지/텍스트/여백/CTA)</h3>
           <div class="bars" id="compBars" style="margin-top:8px"></div>
@@ -546,6 +573,67 @@ function buildPersonaFinal(ctx){
   return {headerTags, bullets, implication};
 }
 
+/* ========== 라이프스타일 자동 유추 ========== */
+function genLifestyleAuto(ctx){
+  const ch = (ctx.platform==='sns')
+            ? 'SNS(인스타·틱톡) 중심 소비, 릴스/숏폼 시청'
+            : (ctx.platform==='web' ? '검색/유튜브 기반 정보 탐색' : '오프라인 경험과 병행');
+  const shop = (ctx.goal==='conversion') ? '가격·혜택 비교 후 모바일 결제 선호'
+             : (ctx.goal==='education') ? '기사·리뷰·케이스 탐독' : '이벤트/캠페인 참여 경험';
+  const vis = (ctx.visual==='photo') ? '실사 이미지의 신뢰를 중시' : '개념을 빠르게 잡는 일러스트/아이콘 선호';
+  const tempo = (ctx.energy==='dynamic') ? '빠른 템포의 정보 소비, 첫 화면 임팩트 선호' : '차분한 템포, 세부 정보 확인';
+  return `${ch}. ${shop}. ${vis}. ${tempo}.`;
+}
+
+/* ========== 동기부여 스코어 ========== */
+function calcMotivation(ctx){
+  const s = {achievement:50, security:50, belong:50, autonomy:50, growth:50};
+  if(ctx.goal==='conversion'){ s.achievement+=20; s.security+=5; }
+  if(ctx.goal==='awareness'){ s.belong+=10; s.autonomy+=5; }
+  if(ctx.goal==='education'){ s.growth+=15; s.security+=10; }
+  if(ctx.goal==='campaign'){ s.belong+=15; s.achievement+=10; }
+  if(ctx.audience==='youth'){ s.autonomy+=10; s.belong+=8; }
+  if(ctx.audience==='pro'){ s.achievement+=12; s.security+=8; }
+  if(ctx.audience==='premium'){ s.security+=10; s.achievement+=8; }
+  if(ctx.tone==='trust'||ctx.brand==='reliable'){ s.security+=10; }
+  if(ctx.tone==='bold'||ctx.brand==='innovative'){ s.achievement+=8; s.autonomy+=8; }
+  if(ctx.tone==='friendly'){ s.belong+=8; }
+  if(ctx.tone==='warm'){ s.belong+=6; s.security+=4; }
+  if(ctx.platform==='sns'){ s.belong+=6; s.autonomy+=6; }
+  if(ctx.visual==='photo'){ s.security+=4; } else { s.growth+=4; }
+  Object.keys(s).forEach(k=>{ s[k]=Math.max(0,Math.min(100,s[k])); });
+  return s;
+}
+function renderLifestyleAndMotive(ctx){
+  const life = (personaMode==='manual' && (document.getElementById('ps_life').value||'').trim())
+             ? document.getElementById('ps_life').value.trim()
+             : genLifestyleAuto(ctx);
+  document.getElementById('lifeText').textContent = life;
+
+  let s = calcMotivation(ctx);
+  const mv = (document.getElementById('ps_motive')?.value)||'';
+  if(mv && personaMode==='manual'){ s[mv] = Math.min(100, s[mv]+12); }
+
+  const rows = [
+    ['성취/성과', s.achievement],
+    ['안전/위험회피', s.security],
+    ['소속/공감', s.belong],
+    ['자율/탐험', s.autonomy],
+    ['성장/계발', s.growth]
+  ];
+  const box = document.getElementById('motiveBars'); box.innerHTML='';
+  rows.forEach(([label,val])=>{
+    box.insertAdjacentHTML('beforeend',
+      `<div class="barRow"><div class="small">${label}</div>
+         <div class="bar"><i style="width:${val}%;background:linear-gradient(90deg,#f59e0b,#60a5fa)"></i></div>
+       </div>`
+    );
+  });
+  const top = rows.slice().sort((a,b)=>b[1]-a[1])[0][0];
+  document.getElementById('motiveNote').textContent =
+    `주요 동기: ${top}. 메시지는 이 축을 자극하도록 설계하세요.`;
+}
+
 /* ---------- 타이포 추천 ---------- */
 function typoRecommend(audience,tone){
   const pick = (arr,bias=0)=>arr[(Math.floor(Math.random()*arr.length)+bias)%arr.length];
@@ -599,7 +687,6 @@ function drawBars(moodKey,tone){
   });
 }
 function drawComposition(platform,goal){
-  // 이미지/텍스트/여백/CTA 강조 비율(가이드 값)
   let img=50, txt=35, white=15, cta=50;
   if(platform==='sns'){
     if(goal==='education'){ img=30; txt=50; white=20; cta=35; }
@@ -629,11 +716,9 @@ function renderRatioPreview(ratios, activeSet=new Set()){
     const lab=document.createElement('label'); lab.textContent=r;
     el.appendChild(inner); el.appendChild(lab); line.appendChild(el);
   });
-
-  // 0 픽셀 이슈 방지 + 정확 비율 센터링
   line.querySelectorAll('.ratio').forEach(box=>{
     let w=box.clientWidth-16, h=box.clientHeight-16;
-    if(w<=0||h<=0){ w=92; h=56; } // fallback
+    if(w<=0||h<=0){ w=92; h=56; }
     const [a,b]=box.dataset.ratio.split(':').map(Number);
     let iw=w, ih=iw*(b/a);
     if(ih>h){ ih=h; iw=ih*(a/b); }
@@ -658,7 +743,6 @@ function buildResult(){
   const audience=$('#q_audience').value, tone=$('#q_tone').value, ban=$('#q_ban').value;
   const brand=$('#q_brand').value, visual=$('#q_visual').value, energy=$('#q_energy').value;
 
-  // 태그/요약
   $('#tagIndustry').textContent = '#'+$('#q_industry').selectedOptions[0].textContent;
   $('#tagGoal').textContent     = '#'+$('#q_goal').selectedOptions[0].textContent;
   $('#tagPlatform').textContent = '#'+$('#q_platform').selectedOptions[0].textContent;
@@ -678,6 +762,9 @@ function buildResult(){
   const ph=$('#personaHeader'); ph.innerHTML=''; persona.headerTags.forEach(t=>ph.insertAdjacentHTML('beforeend',`<span class="tag">${t}</span>`));
   $('#personaPoints').innerHTML = persona.bullets.map(x=>`<li>${x}</li>`).join('');
   $('#personaImp').innerHTML = persona.implication;
+
+  // 라이프스타일 + 동기부여(그래프)
+  renderLifestyleAndMotive({industry,goal,platform,audience,tone,brand,visual,energy});
 
   // 팔레트 + 대비
   let pal=[...(mood.colors||['#111827','#2563eb','#e5e7eb','#0ea5e9','#f8fafc'])];
@@ -726,7 +813,6 @@ btnManual.onclick=()=>{
 
 document.getElementById('goResult').onclick=()=>{
   if(!validateAll()){ openModal('modalRequire'); return; }
-  // 로딩
   const loading=document.getElementById('loading');
   loading.style.display='grid';
   setTimeout(()=>{
